@@ -7,7 +7,9 @@ var express 	= require('express'),
 	redis 		= require('redis'),
 	RedisStore 	= require('connect-redis')(session),
 	app			= express(),
-	config		= require('./config.js')
+
+	config		= require('./config'),
+	User 		= require('./models/UserSchema')
 	;
 
 /* Connecting app to Redis. */
@@ -26,6 +28,17 @@ mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.colle
     if (err) console.log("MongoDB error: " + err);
     else console.log(config.app.name + " successfully connected to MongoDB.");
 });
+
+/* Setting Up Passport */
+passport.use(new BearerStrategy(
+	function(token, done) {
+		User.findOne({ "token": token }, function (err, user) {
+			if (err) { return done(err); }
+			if (!user) { return done(null, false); }
+			return done(null, user, { scope: 'all' });
+		});
+	}
+));
 
 /* Set views directory and engine. */
 app.set('views', './views');

@@ -1,21 +1,22 @@
-var express = require('express'),
-	router	= express.Router(),
-	apiRouter = express.Router()
+var express 	= require('express'),
+	passport	= require('passport'),
+	router		= express.Router(),
+	apiRouter 	= express.Router()
 	;
 
-apiRouter.get('/', function(req, res) {
+apiRouter.get('/', passport.authenticate('bearer', { session: false }), function(req, res) {
 
 });
 
-apiRouter.post('/', function(req, res) {
+apiRouter.post('/', passport.authenticate('bearer', { session: false }), function(req, res) {
 
 });
 
-apiRouter.get('/:course_id', function(req, res) {
+apiRouter.get('/:course_id', passport.authenticate('bearer', { session: false }), function(req, res) {
 
 });
 
-apiRouter.patch('/:course_id', function(req, res) {
+apiRouter.patch('/:course_id', passport.authenticate('bearer', { session: false }), function(req, res) {
 
 });
 
