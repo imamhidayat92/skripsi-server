@@ -1,7 +1,7 @@
 module.exports = {
 	app: {
 		name: 'Skripsi Server',
-		port: 8080,
+		port: 2014,
 		base_path: require('path').normalize(__dirname)
 	},
 	mongodb: {

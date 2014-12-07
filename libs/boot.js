@@ -7,6 +7,16 @@ module.exports = function(parent, options) {
     
     var verbose = options.verbose;
 
+    var appendSpace = function(str, n) {
+        var tmp = str;
+        
+        for (var i = 0; i < n; i++) {
+            tmp += " ";
+        }
+
+        return tmp;
+    }
+
     var loadAction = function(app, actionObject, actionName, rootPath) {
         var action = actionObject;
 
@@ -21,17 +31,17 @@ module.exports = function(parent, options) {
 
         if (action.before) {
             app[action.method](actionPath, action.before, action.handler);
-            verbose && console.log('    %s %s -> before -> %s', action.method.toUpperCase(), actionPath, actionName);
+            verbose && console.log('    %s %s -> before -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
         } else {
             app[action.method](actionPath, action.handler);
-            verbose && console.log('    %s %s -> %s', action.method.toUpperCase(), actionPath, actionName);
+            verbose && console.log('    %s %s -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
         }
     }
 
     verbose && console.log('----- Boot Up!');
 
     fs.readdirSync(__dirname + '/../controllers').forEach(function(directoryName) {
-        verbose && console.log('\n    %s:', directoryName);
+        verbose && console.log('\n  %s:', directoryName);
 
         var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')();
         var name = typeof controller.name == "undefined" ? directoryName : controller.name;

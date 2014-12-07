@@ -36,8 +36,8 @@ mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.colle
 passport.use(new BearerStrategy(
 	function(token, done) {
 		User.findOne({ "token": token }, function (err, user) {
-			if (err) { return done(err); }
-			if (!user) { return done(null, false); }
+			if (err) { return done(err, false, {message: "Error."}); }
+			if (!user) { return done(null, false, {message: "Unauthorized."}); }
 			return done(null, user, { scope: 'all' });
 		});
 	}

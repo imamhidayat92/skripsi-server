@@ -4,7 +4,8 @@ var	mongoose	= require('mongoose'),
 	;
 
 var courseSchema = new Schema({
-	name: {type: String, index: true}
+	name		: 	{type: String, index: true},
+	description	: 	String
 }, {collection: 'courses'});
 
 module.exports('Course', courseSchema);

@@ -7,7 +7,9 @@ var controller = function() {
 		path 	: '',
 		method	: 'get',
 		handler	: function(req, res, next) {
-			
+			res.render('index', {
+				title: 'Home'
+			});
 		}
 	};
 

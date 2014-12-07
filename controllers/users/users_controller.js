@@ -19,7 +19,25 @@ var controller = function() {
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				User.find().exec(function(findError, users) {
+					if (findError) {
+						return res.status(500).json({
+							success: false,
+							message: "",
+							system_error: {
+								message: "",
+								error: findError
+							}
+						});
+					}
+					else {
+						return res.status(200).json({
+							success: true,
+							message: "",
+							results: users
+						});
+					}
+				});
 			}
 		},
 		{
@@ -61,13 +79,13 @@ var controller = function() {
 				}
 
 				if (user) {
-					res.status(200).json({
+					return res.status(200).json({
 						message: "Hello " + user.name + "!",
 						result: user
 					});
 				}
 				else {
-					res.status(403).json({
+					return res.status(403).json({
 						message: "Invalid credentials."
 					});
 				}
@@ -76,7 +94,7 @@ var controller = function() {
 	};
 
 	actions.api_identify = {
-		path 	: '/',
+		path 	: '/identify',
 		prefix	: 'api',
 		method	: 'get',
 		before	: passport.authenticate('bearer', { session: false }),
@@ -155,7 +173,28 @@ var controller = function() {
 
 			}
 		},
-	]
+	];
+
+	actions.api_user_enrollments = [
+		{
+			path 	: '/:user_id/enrollments',
+			prefix	: 'api',
+			method	: 'get',
+			before	: passport.authenticate('bearer', { session: false }),
+			handler	: function(req, res, next) {
+
+			}
+		},
+		{
+			path 	: '/:user_id/enrollments',
+			prefix	: 'api',
+			method	: 'post',
+			before	: passport.authenticate('bearer', { session: false }),
+			handler	: function(req, res, next) {
+				
+			}
+		}
+	];
 
 	actions.api_user_schedules = [
 		{
@@ -176,7 +215,7 @@ var controller = function() {
 				
 			}
 		}
-	]
+	];
 
 	return actions;
 } 

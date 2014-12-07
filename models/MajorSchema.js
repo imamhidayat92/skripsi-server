@@ -4,8 +4,9 @@ var	mongoose	= require('mongoose'),
 	;
 
 var majorSchema = new Schema({
-	name: String,
-	color: String
+	name		: 	String,
+	color		: 	String,
+	description	: 	String
 }, {collection: 'majors'});
 
 module.exports = mongoose.model('Major', majorSchema);
