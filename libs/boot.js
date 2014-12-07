@@ -1,27 +1,65 @@
 var express = require('express'),
     fs      = require('fs'),
-    config  = require('../config');
+    _       = require('underscore')
+    ;
 
-module.exports = function(parent, options){
+module.exports = function(parent, options) {
+    
     var verbose = options.verbose;
-    var path;
 
-    fs.readdirSync(config.app.base_path + '/controllers').forEach(function(name){
-        name = name.substr(0, name.lastIndexOf('.js'));
-        var obj = require(config.app.base_path + '/controllers/' + name);
-        var app = express();
+    var loadAction = function(app, actionObject, actionName, rootPath) {
+        var action = actionObject;
 
-        if (typeof obj.path != "undefined") path = obj.path;
-        else path = "/" + name;
+        var actionPath = '';
+
+        if (typeof action.prefix != "undefined") {
+            actionPath = '/' + action.prefix + rootPath + action.path;
+        }
+        else {
+            actionPath = rootPath + action.path;
+        }
+
+        if (action.before) {
+            app[action.method](actionPath, action.before, action.handler);
+            verbose && console.log('    %s %s -> before -> %s', action.method.toUpperCase(), actionPath, actionName);
+        } else {
+            app[action.method](actionPath, action.handler);
+            verbose && console.log('    %s %s -> %s', action.method.toUpperCase(), actionPath, actionName);
+        }
+    }
+
+    verbose && console.log('----- Boot Up!');
+
+    fs.readdirSync(__dirname + '/../controllers').forEach(function(directoryName) {
+        verbose && console.log('\n    %s:', directoryName);
+
+        var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')();
+        var name = typeof controller.name == "undefined" ? directoryName : controller.name;
         
-        app.use(path, obj);
+        var app = express();
+        var action;
 
-        if (typeof obj.api != "undefined") {
-            path = "/api/" + name;
-            app.use(path, obj.api);
+        var path = controller.path || '/' + name;
+
+        app.set('views', './controllers/' + directoryName + '/views');
+
+        for (var action in controller) {
+
+            if (~['name'].indexOf(action)) continue;
+            
+            if (_.isArray(controller[action])) {
+                for (var i = 0; i < controller[action].length; i++) {
+                    loadAction(app, controller[action][i], action + '[' + i + ']', path);
+                }
+            }
+            else {
+                loadAction(app, controller[action], action, path);
+            }
         }
 
         parent.use(app);
-
     });
+
+    verbose && console.log();
+    verbose && console.log('----- End of Boot Up.');
 };

@@ -1,37 +1,35 @@
-require('date-utils');
-
 var	mongoose	= require('mongoose'),
 	Schema		= mongoose.Schema,
 	ObjectId	= Schema.ObjectId
 	;
 
 var userSchema = new Schema({
-	provider: String,
-	email: {type: String, lowercase: true, trim: true,index: {unique: true}},
-	domain: {type: String, lowercase: true, trim: true},
-	hashed_password: String,
-	role: {type: String, lowercase: true, enum:['administrator', 'lecturer', 'student']},
-	avatar: String,
-	name: String,
+	provider			: 	String,
+	email				: 	{type: String, lowercase: true, trim: true,index: {unique: true}},
+	domain				: 	{type: String, lowercase: true, trim: true},
+	hashed_password		: 	String,
+	role				: 	{type: String, lowercase: true, enum:['administrator', 'lecturer', 'student']},
+	avatar				: 	String,
+	name				: 	String,
 
-	identifier: {type: String, trim: true, index: {unique: true}},
-	id_number: type: String,
+	identifier			: 	{type: String, trim: true, index: {unique: true}},
+	id_number			: 	{type: String, trim: true, index: {unique: true}},
 	
 	/* For students: */
-	major: {type: Schema.ObjectId, ref: 'Major'},
-	enrollments: [{type: Schema.ObjectId, ref : 'Schedule'}],
+	major 				: 	{type: Schema.ObjectId, ref: 'Major'},
+	enrollments			: 	[{type: Schema.ObjectId, ref : 'Schedule'}],
 
 	/* For lecturers: */
-	schedules: [{type: Schema.ObjectId, ref : 'Schedule'}],
+	schedules			: 	[{type: Schema.ObjectId, ref : 'Schedule'}],
 
-	salt: String,
-	hash: String,
+	salt 				: 	String,
+	hash 				: 	String,
 
-	activation: {
-		token: String,
-		created: Date,
-		expired: Date
-	}
+	activation 			: 	{
+								token: String,
+								created: Date,
+								expired: Date
+						  	}
 }, {collection: 'users'});
 
 userSchema.virtual('password')

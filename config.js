@@ -21,8 +21,8 @@ module.exports = {
 		password: null,
 	},
 	security: {
-	  cookie_secret : 'F&J2Pxn!*Lr_UEo66E9)MjhtlDp&pHC5^xp(h%GWs0bXAixXWQ)9evE@eb$EzfT%',
-	  session_secret: 'fsC&u$LQo5PK&6hofa8WoD73GiaZh9bf4o2Uxh6ByhFiIG7QZx-YGhlG5Xzzu(&R',
-	  session_timeout: 604800000, // = 1 week.
+		cookie_secret : 'F&J2Pxn!*Lr_UEo66E9)MjhtlDp&pHC5^xp(h%GWs0bXAixXWQ)9evE@eb$EzfT%',
+		session_secret: 'fsC&u$LQo5PK&6hofa8WoD73GiaZh9bf4o2Uxh6ByhFiIG7QZx-YGhlG5Xzzu(&R',
+		session_timeout: 604800000, // = 1 week.
 	}
 };

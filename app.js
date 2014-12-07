@@ -1,15 +1,18 @@
-var express 	= require('express'),
-	session		= require('express-session'),
-	bodyParser	= require('body-parser'),
-	morgan		= require('morgan'),
-	compression	= require('compression'),
-	mongoose	= require('mongoose'),
-	redis 		= require('redis'),
-	RedisStore 	= require('connect-redis')(session),
-	app			= express(),
+var express 		= require('express'),
+	session			= require('express-session'),
+	bodyParser		= require('body-parser'),
+	morgan			= require('morgan'),
+	compression		= require('compression'),
+	mongoose		= require('mongoose'),
+	redis 			= require('redis'),
+	RedisStore 		= require('connect-redis')(session),
+	passport 		= require('passport'),
+	
+	app				= express(),
+	BearerStrategy	= require('passport-http-bearer').Strategy,
 
-	config		= require('./config'),
-	User 		= require('./models/UserSchema')
+	config			= require('./config'),
+	User 			= require('./models/UserSchema')
 	;
 
 /* Connecting app to Redis. */
@@ -53,7 +56,7 @@ app.use(bodyParser.urlencoded({
 app.use(session({
 	cookie: { maxAge:	config.security.session_timeout },
 	secret: config.security.session_secret,
-	store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis}),
+	store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis }),
 	saveUninitialized: true,
     resave: true
 }));
@@ -67,18 +70,18 @@ app.use(morgan(config.morgan.mode));
 /* Set static file location. */
 app.use(express.static(__dirname + '/public'));
 
-/* Boot up! Set up all controllers needed. */
+/* Boot up! Set up all controllers. */
 require('./libs/boot')(app, { verbose: !module.parent });
 
 /* Handle internal server error and render a view. */
 app.use(function(err, req, res, next){
 	if (!module.parent) console.error(err.stack);
-	res.status(500).render('core/errors/5xx');
+	res.status(500).render('errors/5xx');
 });
 
 /* Handle not found error and render a view. */
 app.use(function(req, res, next){
-	res.status(404).render('core/errors/404', { url: req.originalUrl });
+	res.status(404).render('errors/404', { url: req.originalUrl });
 });
 
 /* Run! */
