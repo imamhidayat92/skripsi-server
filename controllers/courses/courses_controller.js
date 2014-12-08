@@ -3,6 +3,9 @@ var controller = function() {
 		passport	= require('passport')
 		;
 
+	var	Course 		= require('../../models/CourseSchema')
+		;
+
 	var actions = {};
 
 	actions.api_index = [
@@ -12,7 +15,10 @@ var controller = function() {
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				Course.find()
+				.exec(function(findError, courses) {
+					
+				});
 			}
 		},
 		{

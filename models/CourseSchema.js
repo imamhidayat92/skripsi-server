@@ -8,4 +8,4 @@ var courseSchema = new Schema({
 	description	: 	String
 }, {collection: 'courses'});
 
-module.exports('Course', courseSchema);
+module.exports = mongoose.model('Course', courseSchema);

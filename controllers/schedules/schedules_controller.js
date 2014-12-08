@@ -3,6 +3,9 @@ var controller = function() {
 		passport	= require('passport')
 		;
 
+	var	Schedule 	= require('../../models/ScheduleSchema')
+		;
+
 	var actions = {};
 
 	actions.api_index = [

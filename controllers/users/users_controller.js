@@ -1,14 +1,15 @@
 var controller = function() {
 	var	_ 			= require('underscore'),
-		passport	= require('passport')
+		passport	= require('passport'),
+		mongoose	= require('mongoose'),
+		ObjectId	= mongoose.Types.ObjectId
 		;
 
-	var	User 	= require('../../models/UserSchema');
+	var	Schedule 	= require('../../models/ScheduleSchema'),
+		User 		= require('../../models/UserSchema')
 		;
 
 	var actions = {};
-
-	var name = 'users';
 
 	/* API */
 
@@ -113,7 +114,7 @@ var controller = function() {
 					else {
 						if (user) {
 							res.status(200).json({
-								message: "Hello " + user.name + "!",
+								message: "Halo " + user.name + "!",
 								result: user
 							});
 						}
@@ -127,6 +128,7 @@ var controller = function() {
 			}
 			else {
 				res.status(400).json({
+					success: false,
 					message: "Invalid request."
 				});
 			}			
@@ -141,12 +143,17 @@ var controller = function() {
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				User.findOne({
-					'_id': mongoose.Types.ObjectId(req.param.user_id)
+					'_id': ObjectId(req.param.user_id)
 				})
-				.exec(function(err, user) {
-					if (err) {
-						res.status(500).json({
-							message: "Something bad happened."
+				.exec(function(findError, user) {
+					if (findError) {
+						return res.status(500).json({
+							success: false,
+							message: "",
+							system_error: {
+								message: "",
+								error: findError
+							}
 						});
 					}
 
@@ -170,7 +177,27 @@ var controller = function() {
 			method	: 'patch',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
+				delete req.body._id;
 
+				User.findByIdAndUpdate(ObjectId(req.params.user_id, {$set: req.body}, {}, function(updateError, savedUser) {
+					if (updateError) {
+						return res.status(500).json({
+							success: false,
+							message: "",
+							system_error: {
+								message: "",
+								error: updateError
+							}
+						});
+					}
+					else {
+						return res.status(200).json({
+							success: true,
+							message: "",
+							results: savedUser
+						});
+					}
+				}));
 			}
 		},
 	];
@@ -182,7 +209,27 @@ var controller = function() {
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				User.findOne({"_id": ObjectId(req.params.user_id)})
+				.populate('enrollments')
+				.exec(function(findError, user) {
+					if (findError) {
+						return res.status(500).json({
+							success: false,
+							message: "",
+							system_error: {
+								message: "",
+								error: findError
+							}
+						});
+					}
+					else {
+						res.status(200).json({
+							success: true,
+							message: "",
+							results: user.enrollments
+						});
+					}
+				});
 			}
 		},
 		{
@@ -203,7 +250,27 @@ var controller = function() {
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				User.findOne({"_id": ObjectId(req.params.user_id)})
+				.populate('schedules')
+				.exec(function(findError, user) {
+					if (findError) {
+						return res.status(500).json({
+							success: false,
+							message: "",
+							system_error: {
+								message: "",
+								error: findError
+							}
+						});
+					}
+					else {
+						res.status(200).json({
+							success: true,
+							message: "",
+							results: user.schedules
+						});
+					}
+				});
 			}
 		},
 		{

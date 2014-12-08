@@ -72,4 +72,5 @@ module.exports = function(parent, options) {
 
     verbose && console.log();
     verbose && console.log('----- End of Boot Up.');
+    verbose && console.log();
 };

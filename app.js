@@ -15,6 +15,10 @@ var express 		= require('express'),
 	User 			= require('./models/UserSchema')
 	;
 
+console.log();
+console.log('Script executed at ' + (new Date()));
+console.log();
+
 /* Connecting app to Redis. */
 redis = redis.createClient();
 

@@ -6,7 +6,9 @@ var	mongoose	= require('mongoose'),
 var majorSchema = new Schema({
 	name		: 	String,
 	color		: 	String,
-	description	: 	String
+	description	: 	String,
+
+	students	: 	{type: ObjectId, ref: 'User'}
 }, {collection: 'majors'});
 
 module.exports = mongoose.model('Major', majorSchema);

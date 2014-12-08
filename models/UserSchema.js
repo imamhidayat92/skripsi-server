@@ -6,21 +6,24 @@ var	mongoose	= require('mongoose'),
 var userSchema = new Schema({
 	provider			: 	String,
 	email				: 	{type: String, lowercase: true, trim: true,index: {unique: true}},
-	domain				: 	{type: String, lowercase: true, trim: true},
+	address				: 	String,
+	name				: 	String,
+
 	hashed_password		: 	String,
 	role				: 	{type: String, lowercase: true, enum:['administrator', 'lecturer', 'student']},
 	avatar				: 	String,
-	name				: 	String,
 
 	identifier			: 	{type: String, trim: true, index: {unique: true}},
 	id_number			: 	{type: String, trim: true, index: {unique: true}},
 	
 	/* For students: */
-	major 				: 	{type: Schema.ObjectId, ref: 'Major'},
-	enrollments			: 	[{type: Schema.ObjectId, ref : 'Schedule'}],
+	major 				: 	{type: ObjectId, ref: 'Major'},
+	enrollments			: 	[{type: ObjectId, ref : 'Schedule'}],
 
 	/* For lecturers: */
-	schedules			: 	[{type: Schema.ObjectId, ref : 'Schedule'}],
+	schedules			: 	[{type: ObjectId, ref : 'Schedule'}],
+
+	attendances			: 	[{type: ObjectId, ref: 'Attendance'}],
 
 	salt 				: 	String,
 	hash 				: 	String,
