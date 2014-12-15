@@ -5,6 +5,8 @@ var	mongoose	= require('mongoose'),
 
 var teachingReportSchema = new Schema({
 	created		: 	{type: Date, default: new Date()},
+	subject		: 	String,
+	description	: 	String,
 	
 	attendance	: 	{type: ObjectId, ref: 'Attendance'}
 }, {collection: 'majors'});

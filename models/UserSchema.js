@@ -59,7 +59,7 @@ userSchema.methods = {
 			return crypto.createHmac('sha1', this.salt).update(password).digest('hex')
 	},
 
-	generateActivation: function(){
+	generateActivation: function() {
 		this.activation.token = crypto.createHmac('sha1',this.makeSalt()).update(this.email).digest('hex');
 		this.activation.created = Date.now();
 		this.activation.expired = Date.nextWeek();

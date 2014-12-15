@@ -9,9 +9,13 @@ var express 		= require('express'),
 	passport 		= require('passport'),
 	
 	app				= express(),
+
+	// Passport Strategy
 	BearerStrategy	= require('passport-http-bearer').Strategy,
+	LocalStrategy	= require('passport-local').Strategy,
 
 	config			= require('./config'),
+
 	User 			= require('./models/UserSchema')
 	;
 
