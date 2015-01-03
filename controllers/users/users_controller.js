@@ -9,7 +9,46 @@ var controller = function() {
 		User 		= require('../../models/UserSchema')
 		;
 
+	var utils		= require('../../libs/utils'),
+		API 		= utils.API
+		;
+
 	var actions = {};
+
+	/* Pages */
+
+	actions.add = [
+		{
+			path 	: '/add',
+			method	: 'get',
+			handler	: function(req, res, next) {
+				res.render('add', {
+					title: 'Add New User'
+				})
+			}
+		},
+		{
+			path 	: '/add',
+			method	: 'post',
+			before	: passport.authenticate('bearer', { session: false }),
+			handler	: function(req, res, next) {
+				var user = new User();
+
+				_.each(req.body, function(v, k) {
+					user[k] = v;
+				});
+
+				user.save(function(saveError, savedUser) {
+					if (saveError) {
+
+					}
+					else {
+
+					}
+				});
+			}
+		}
+	];
 
 	/* API */
 
@@ -55,7 +94,7 @@ var controller = function() {
 	actions.api_authenticate = {
 		path 	: '/authenticate',
 		prefix	: 'api',
-		method	: 'get',
+		method	: 'post',
 		handler	: function(req, res, next) {
 			var conditions = {};
 
@@ -74,28 +113,22 @@ var controller = function() {
 
 			User.findOne(conditions).exec(function(err, user) {
 				if (err) {
-					return res.status(500).json({
-						message: "Something bad happened."
-					});
-				}
-
-				if (user) {
-					return res.status(200).json({
-						message: "Hello " + user.name + "!",
-						result: user
-					});
+					return API.error(res, err);
 				}
 				else {
-					return res.status(403).json({
-						message: "Invalid credentials."
-					});
+					if (user) {
+						return API.success(res, user);
+					}
+					else {
+						return API.forbidden(res);
+					}
 				}
 			});
 		}
 	};
 
-	actions.api_identify = {
-		path 	: '/identify',
+	actions.api_current = {
+		path 	: '/current',
 		prefix	: 'api',
 		method	: 'get',
 		before	: passport.authenticate('bearer', { session: false }),
@@ -137,13 +170,13 @@ var controller = function() {
 
 	actions.api_details = [
 		{
-			path 	: '/:user_id',
+			path 	: '/:id',
 			prefix	: 'api',
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				User.findOne({
-					'_id': ObjectId(req.param.user_id)
+					'_id': ObjectId(req.param.id)
 				})
 				.exec(function(findError, user) {
 					if (findError) {
@@ -172,30 +205,19 @@ var controller = function() {
 			}
 		},
 		{
-			path 	: '/:user_id',
+			path 	: '/:id',
 			prefix	: 'api',
 			method	: 'patch',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				delete req.body._id;
 
-				User.findByIdAndUpdate(ObjectId(req.params.user_id, {$set: req.body}, {}, function(updateError, savedUser) {
+				User.findByIdAndUpdate(ObjectId(req.params.id, {$set: req.body}, {}, function(updateError, savedUser) {
 					if (updateError) {
-						return res.status(500).json({
-							success: false,
-							message: "",
-							system_error: {
-								message: "",
-								error: updateError
-							}
-						});
+						return API.error(res, updateError)
 					}
 					else {
-						return res.status(200).json({
-							success: true,
-							message: "",
-							results: savedUser
-						});
+						return API.success(res, savedUser);
 					}
 				}));
 			}
@@ -204,36 +226,25 @@ var controller = function() {
 
 	actions.api_user_enrollments = [
 		{
-			path 	: '/:user_id/enrollments',
+			path 	: '/:id/enrollments',
 			prefix	: 'api',
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-				User.findOne({"_id": ObjectId(req.params.user_id)})
+				User.findOne({"_id": ObjectId(req.params.id)})
 				.populate('enrollments')
 				.exec(function(findError, user) {
 					if (findError) {
-						return res.status(500).json({
-							success: false,
-							message: "",
-							system_error: {
-								message: "",
-								error: findError
-							}
-						});
+						return API.error(res, findError);
 					}
 					else {
-						res.status(200).json({
-							success: true,
-							message: "",
-							results: user.enrollments
-						});
+						return API.success(res, user.enrollments);
 					}
 				});
 			}
 		},
 		{
-			path 	: '/:user_id/enrollments',
+			path 	: '/:id/enrollments',
 			prefix	: 'api',
 			method	: 'post',
 			before	: passport.authenticate('bearer', { session: false }),
@@ -245,12 +256,12 @@ var controller = function() {
 
 	actions.api_user_schedules = [
 		{
-			path 	: '/:user_id/schedules',
+			path 	: '/:id/schedules',
 			prefix	: 'api',
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-				User.findOne({"_id": ObjectId(req.params.user_id)})
+				User.findOne({"_id": ObjectId(req.params.id)})
 				.populate('schedules')
 				.exec(function(findError, user) {
 					if (findError) {
@@ -274,7 +285,7 @@ var controller = function() {
 			}
 		},
 		{
-			path 	: '/:user_id/schedules',
+			path 	: '/:id/schedules',
 			prefix	: 'api',
 			method	: 'post',
 			before	: passport.authenticate('bearer', { session: false }),

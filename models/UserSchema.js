@@ -25,6 +25,8 @@ var userSchema = new Schema({
 
 	attendances			: 	[{type: ObjectId, ref: 'Attendance'}],
 
+	token				: 	String,
+
 	salt 				: 	String,
 	hash 				: 	String,
 
@@ -64,6 +66,11 @@ userSchema.methods = {
 		this.activation.created = Date.now();
 		this.activation.expired = Date.nextWeek();
 		return this.activation.token;
+	},
+
+	generateToken: function() {
+		this.token = crypto.createHmac('sha1',this.makeSalt()).update(this.email).digest('hex');
+		return this.token;
 	},
 
 	validPassword: function(password) {

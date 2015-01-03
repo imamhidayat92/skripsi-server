@@ -5,9 +5,13 @@ var controller = function() {
 	var	Major	= require('../../models/MajorSchema')
 		;
 
+	var utils		= require('../../libs/utils'),
+		API 		= utils.API
+		;
+
 	var actions = {};
 
-	actions.index = [
+	actions.api_index = [
 		{
 			path 	: '/',
 			prefix	: 'api',

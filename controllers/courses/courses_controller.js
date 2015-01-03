@@ -57,20 +57,20 @@ var controller = function() {
 	actions.api_detail = [
 		{
 			prefix	: 'api',
-			path 	: '/:course_id',
+			path 	: '/:id',
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				
 			}
 		},
 		{
 			prefix	: 'api',
-			path 	: '/:course_id',
-			method	: 'post',
+			path 	: '/:id',
+			method	: 'patch',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-
+				
 			}
 		},
 	];
