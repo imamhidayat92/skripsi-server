@@ -11,8 +11,10 @@ var scheduleSchema = new Schema({
 	course 			: 	{type: ObjectId, ref: 'Course'},
 	lecturer		: 	{type: ObjectId, ref: 'User'},
 
-	majors			: 	{type: ObjectId, ref: 'Major'},
-	students		: 	{type: ObjectId, ref: 'User'}
+	enrollments		: 	[{type: ObjectId, ref: 'Enrollment'}],
+
+	created			: 	Date,
+	modified		: 	{type: Date, default: new Date()}
 }, {collection: 'schedules'});
 
-module.exports = mongoose.model('CourseSchedule', scheduleSchema);
+module.exports = mongoose.model('Schedule', scheduleSchema);

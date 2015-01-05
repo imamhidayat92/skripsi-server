@@ -1,5 +1,7 @@
 module.exports = function() {
 
+	var	_	= require('underscore')
+			;
 
 	/* Standard API Utility */
 	var APIUtility = {};
@@ -54,7 +56,7 @@ module.exports = function() {
 				returnedObject.message = message;
 			}
 
-			if (_.isArray(result)) {
+			if (_.isArray(responseObject)) {
 				returnedObject.results = responseObject;
 			}
 			else {

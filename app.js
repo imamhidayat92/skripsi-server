@@ -51,6 +51,8 @@ passport.use(new BearerStrategy(
 	}
 ));
 
+app.use(passport.initialize());
+
 /* Set views directory and engine. */
 app.set('views', './views');
 app.set('view engine', 'jade');
@@ -80,6 +82,19 @@ app.use(express.static(__dirname + '/public'));
 
 /* Boot up! Set up all controllers. */
 require('./libs/boot')(app, { verbose: !module.parent });
+
+/* Global function for every controller actions. */
+app.all('*', function(req, res, next) {
+	if (typeof req.user != 'undefined') {
+		res.locals.user = req.user;
+	}
+
+	res.locals.current = {
+		url: req.protocol + '://' + req.get('host') + req.originalUrl
+	};
+
+	next()
+});
 
 /* Handle internal server error and render a view. */
 app.use(function(err, req, res, next){

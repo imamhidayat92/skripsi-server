@@ -1,15 +1,18 @@
 var controller = function() {
 	var	_ 			= require('underscore'),
+		async		= require('async'),
 		passport	= require('passport'),
 		mongoose	= require('mongoose'),
 		ObjectId	= mongoose.Types.ObjectId
 		;
 
-	var	Schedule 	= require('../../models/ScheduleSchema'),
+	var	Major 		= require('../../models/MajorSchema'),
+		Schedule 	= require('../../models/ScheduleSchema'),
 		User 		= require('../../models/UserSchema')
 		;
 
-	var utils		= require('../../libs/utils'),
+	var auth 		= require('../../libs/auth')(),
+		utils		= require('../../libs/utils')(),
 		API 		= utils.API
 		;
 
@@ -22,15 +25,25 @@ var controller = function() {
 			path 	: '/add',
 			method	: 'get',
 			handler	: function(req, res, next) {
-				res.render('add', {
-					title: 'Add New User'
-				})
+				async.parallel(
+					[
+						function(callback) {
+							Major.find().exec(callback);
+						}
+					], 
+					function(asyncError, results) {
+						res.render('add', {
+							title: 'Add New User',
+							majors: results[0]
+						});
+					}
+				);
 			}
 		},
 		{
 			path 	: '/add',
 			method	: 'post',
-			before	: passport.authenticate('bearer', { session: false }),
+			// before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				var user = new User();
 
@@ -38,12 +51,15 @@ var controller = function() {
 					user[k] = v;
 				});
 
+				user.provider = 'local';
+
 				user.save(function(saveError, savedUser) {
 					if (saveError) {
-
+						console.log(saveError);
+						return res.status(500).render('../../../views/errors/5xx');
 					}
 					else {
-
+						res.redirect('/users/add');
 					}
 				});
 			}
@@ -113,14 +129,14 @@ var controller = function() {
 
 			User.findOne(conditions).exec(function(err, user) {
 				if (err) {
-					return API.error(res, err);
+					return API.error.json(res, err);
 				}
 				else {
 					if (user) {
-						return API.success(res, user);
+						return API.success.json(res, user);
 					}
 					else {
-						return API.forbidden(res);
+						return API.forbidden.json(res);
 					}
 				}
 			});
@@ -168,38 +184,49 @@ var controller = function() {
 		}
 	};
 
+	actions.api_identity = {
+		path 	: '/identity',
+		prefix	: 'api',
+		method	: 'post',
+		before	: auth.check,
+		handler	: function(req, res, next) {
+			User.findOne({"identifier": ObjectId(req.body.identifier)})
+			.exec(function(findError, user) {
+				if (findError) {
+					return API.error(res, findError);
+				}
+				else {
+					if (user == null) {
+						return API.invalid.json(res, 'User tidak ditemukan.');
+					}
+					else {
+						return API.success.json(res, user);
+					}
+				}
+			});
+		}
+	};
+
 	actions.api_details = [
 		{
 			path 	: '/:id',
 			prefix	: 'api',
 			method	: 'get',
-			before	: passport.authenticate('bearer', { session: false }),
+			before	: auth.check,
 			handler	: function(req, res, next) {
 				User.findOne({
 					'_id': ObjectId(req.param.id)
 				})
 				.exec(function(findError, user) {
 					if (findError) {
-						return res.status(500).json({
-							success: false,
-							message: "",
-							system_error: {
-								message: "",
-								error: findError
-							}
-						});
+						return API.error.json(res, findError);
 					}
 
-					if (user) {
-						res.status(200).json({
-							message: "Hello " + user.name + "!",
-							result: user
-						});
+					if (user == null) {
+						return API.invalid.json(res, 'Tidak dapat menemukan user dengan id yang diberikan.');
 					}
 					else {
-						res.status(400).json({
-							message: "Invalid user id supplied."
-						});
+						return API.success.json(res, user, 'Halo ' + user.display_name);
 					}
 				});
 			}
@@ -214,10 +241,10 @@ var controller = function() {
 
 				User.findByIdAndUpdate(ObjectId(req.params.id, {$set: req.body}, {}, function(updateError, savedUser) {
 					if (updateError) {
-						return API.error(res, updateError)
+						return API.error.json(res, updateError)
 					}
 					else {
-						return API.success(res, savedUser);
+						return API.success.json(res, savedUser);
 					}
 				}));
 			}
@@ -235,10 +262,10 @@ var controller = function() {
 				.populate('enrollments')
 				.exec(function(findError, user) {
 					if (findError) {
-						return API.error(res, findError);
+						return API.error.json(res, findError);
 					}
 					else {
-						return API.success(res, user.enrollments);
+						return API.success.json(res, user.enrollments);
 					}
 				});
 			}

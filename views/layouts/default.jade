@@ -7,9 +7,11 @@ html
 		meta(name="author", content="Imam Hidayat")
 
 		link(rel='stylesheet', type='text/css', href='/components/bootstrap/dist/css/bootstrap.min.css')
+		link(rel='stylesheet', type='text/css', href='/css/styles.css')
 
 body
 	block content
+	include ../elements/footer
 
 	script(src='/components/react/JSXTransformer.js')
 	script(src='/components/react/react.min.js')

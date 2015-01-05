@@ -1,0 +1,40 @@
+extends ../../../views/layouts/default
+
+block content
+	.container
+		.row
+			.col-md-12
+				.page-header
+					h1 Tambah Jadwal Baru
+
+		.row
+			.col-md-4.col-md-offset-4
+				form(method='post', action='/schedules/add')
+					.form-group
+						label Hari
+						select.form-control(name='day_code')
+							option(value="1") Senin
+							option(value="2") Selasa
+							option(value="3") Rabu
+							option(value="4") Kamis
+							option(value="5") Jum'at
+							option(value="6") Sabtu
+					.form-group
+						label Jam Mulai
+						input.form-control(name='start_time')
+					.form-group
+						label Jam Selesai
+						input.form-control(name='end_time')
+
+					.form-group
+						label Mata Kuliah
+						select.form-control(name='course')
+							each course in courses
+								option(value="#{course._id}") #{course.name}
+					.form-group
+						label Dosen
+						select.form-control(name='lecturer')
+							each user in users
+								option(value="#{user._id}") #{user.display_name}
+
+					input.btn.btn-success.btn-block(type='submit', value='Tambah Jadwal Baru')

@@ -3,7 +3,7 @@ var auth = function() {
 		passport	= require('passport')
 		;
 
-	var utils		= require('../../libs/utils'),
+	var utils		= require('../libs/utils')(),
 		API 		= utils.API
 		;
 
@@ -11,35 +11,36 @@ var auth = function() {
 		;
 
 	obj.check = function(req, res, next) {
-		passport.authenticate('bearer', function(err, user, info) {
-			if (req.originalUrl.indexOf('/api/') != -1) {
-				if (err) {
-					return API.error(res, err);
-				}
+		if (!req.isAuthenticated()) {
+			passport.authenticate('bearer', {session: false}, function(authenticateError, user, info) {
+				if (req.originalUrl.indexOf('/api/') != -1) {
+					if (authenticateError) {
+						console.log(authenticateError);
+						return API.error.json(res, authenticateError);
+					}
 
-				if (!user) {
-					return API.forbidden(res, 'Anda tidak diizinkan untuk mengakses sumber daya ini.');
-				}
-
-				req.logIn(user, function(err) {
-					if (err) {
-
+					if (!user) {
+						return API.forbidden.json(res, 'Anda tidak diizinkan untuk mengakses sumber daya ini.');
 					}
 					else {
+						req.user = user;
 						next();
 					}
-				});
-			}
-			else {
-				if (err) { return next(err); }
-				if (!user) { return res.redirect('/users/login'); }
-				
-				req.logIn(user, function(err) {
+				}
+				else {
 					if (err) { return next(err); }
-					return res.redirect('/users/' + user.username);
-				});
-			}
-		})(req, res, next);
+					if (!user) { return res.redirect('/users/login'); }
+					
+					req.logIn(user, function(err) {
+						if (err) { return next(err); }
+						return next();
+					});
+				}
+			})(req, res, next);
+		}
+		else {
+			return next();
+		}
 	}
 
 	return obj;

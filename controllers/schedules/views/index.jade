@@ -1,0 +1,40 @@
+extends ../../../views/layouts/default
+
+block content
+	.container
+		.row
+			.col-md-12
+				.page-header
+					h1 Jadwal Kuliah
+
+		.row
+			.col-md-12
+				table.table.table-hover
+					thead
+						th Kode Hari
+						th Mulai
+						th Selesai
+						th Mata Kuliah
+						th Program Studi
+						th Dosen
+					tbody
+						each schedule in schedules
+							tr
+								td
+									p #{schedule.day_code}
+								td
+									p #{schedule.start_time}
+								td
+									p #{schedule.end_time}
+								td
+									p #{schedule.course.name}
+								td
+									p
+										if (schedule.course.major)
+											span(style='height: 12px; width: 12px; background-color: #{schedule.course.major.color}; display: inline-block; margin-right: 10px;')
+											| #{schedule.course.major.name}
+										else
+											span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
+											| Umum
+								td
+									p #{schedule.lecturer.display_name}

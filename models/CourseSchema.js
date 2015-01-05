@@ -5,7 +5,13 @@ var	mongoose	= require('mongoose'),
 
 var courseSchema = new Schema({
 	name		: 	{type: String, index: true},
-	description	: 	String
+	credits		: 	Number,
+	description	: 	String,
+
+	major		: 	{type: ObjectId, ref: 'Major'},
+ 
+	created		: 	Date,
+	modified	: 	{type: Date, default: new Date()}
 }, {collection: 'courses'});
 
 module.exports = mongoose.model('Course', courseSchema);

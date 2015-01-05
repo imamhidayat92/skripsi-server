@@ -4,10 +4,10 @@ var	mongoose	= require('mongoose'),
 	;
 
 var attendanceSchema = new Schema({
-	created		: 	{type: Date, default: new Date()},
-
+	student		: 	{type: ObjectId, ref: 'User'},
 	schedule	: 	{type: ObjectId, ref: 'Schedule'},
-	report		: 	{type: ObjectId, ref: 'TeachingReport'},
-}, {collection: 'majors'});
+
+	created		: 	Date
+}, {collection: 'attendances'});
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

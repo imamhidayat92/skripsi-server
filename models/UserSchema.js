@@ -1,6 +1,7 @@
 var	mongoose	= require('mongoose'),
 	Schema		= mongoose.Schema,
-	ObjectId	= Schema.ObjectId
+	ObjectId	= Schema.ObjectId,
+	crypto		= require('crypto')
 	;
 
 var userSchema = new Schema({
@@ -8,16 +9,18 @@ var userSchema = new Schema({
 	email				: 	{type: String, lowercase: true, trim: true,index: {unique: true}},
 	address				: 	String,
 	name				: 	String,
+	display_name		: 	String,
 
 	hashed_password		: 	String,
-	role				: 	{type: String, lowercase: true, enum:['administrator', 'lecturer', 'student']},
+	role				: 	{type: String, lowercase: true, enum:['administrator', 'lecturer', 'student', 'staff']},
 	avatar				: 	String,
 
-	identifier			: 	{type: String, trim: true, index: {unique: true}},
-	id_number			: 	{type: String, trim: true, index: {unique: true}},
+	identifier			: 	{type: String, trim: true, index: {sparse: true}},
+	id_number			: 	{type: String, trim: true, index: {sparse: true}},
 	
-	/* For students: */
 	major 				: 	{type: ObjectId, ref: 'Major'},
+
+	/* For students: */
 	enrollments			: 	[{type: ObjectId, ref : 'Schedule'}],
 
 	/* For lecturers: */
@@ -42,6 +45,7 @@ userSchema.virtual('password')
 	this._password = password;
 	this.salt = this.makeSalt();
 	this.hashed_password = this.encryptPassword(password);
+	this.token = this.generateToken();
 })
 .get(function() { 
 	return this._password 
