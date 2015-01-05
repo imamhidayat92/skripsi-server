@@ -6,12 +6,11 @@ var	mongoose	= require('mongoose'),
 var teachingReportSchema = new Schema({
 	subject		: 	String,
 	description	: 	String,
-	
+
 	lecturer	: 	{type: ObjectId, ref: 'User'},
 
-	attendances	: 	[{type: ObjectId, ref: 'Attendance'}],
-
-	created		: 	Date
+	created		: 	Date,
+	modified	: 	{type: Date, default: new Date()}
 }, {collection: 'teaching_reports'});
 
 module.exports = mongoose.model('TeachingReport', teachingReportSchema);

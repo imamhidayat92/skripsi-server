@@ -114,5 +114,6 @@ var server = app.listen(config.app.port, function () {
 	var port = server.address().port
 
 	console.log(config.app.name + ' listening at localhost port ' + port);
+	console.log();
 
 });

@@ -6,7 +6,8 @@ var controller = function() {
 		ObjectId	= mongoose.Types.ObjectId
 		;
 
-	var	Major 		= require('../../models/MajorSchema'),
+	var	Enrollment	= require('../../models/EnrollmentSchema'),
+		Major 		= require('../../models/MajorSchema'),
 		Schedule 	= require('../../models/ScheduleSchema'),
 		User 		= require('../../models/UserSchema')
 		;
@@ -66,7 +67,106 @@ var controller = function() {
 		}
 	];
 
-	/* API */
+	actions.detail_enrollments = [
+		{
+			path 	: '/:id/enrollments',
+			method	: 'get',
+			handler	: function(req, res, next) {
+
+			}
+		},
+		{
+			path 	: '/:id/enrollments/add',
+			method	: 'get',
+			handler	: function(req, res, next) {
+				async.parallel(
+					[
+						function(callback) {
+							Enrollment.find({"student": ObjectId(req.params.id)})
+							.exec(function(findError, enrollments) {
+								if (findError) {
+									console.log(findError);
+									callback(findError, null);
+								}
+								else {
+									var alreadyEnrolled = [];
+									_.each(enrollments, function(enrollment) {
+										alreadyEnrolled.push(enrollment.schedule);
+									});
+
+									Schedule.find({
+										"_id": {
+											$nin: alreadyEnrolled
+										}
+									})
+									.populate('course')
+									.populate('lecturer')
+									.exec(callback);
+								}
+							});
+						},
+						function(callback) {
+							User.findOne({"_id": ObjectId(req.params.id)})
+							.populate('major')
+							.exec(callback);
+						}
+					],
+					function(asyncError, results) {
+						if (asyncError) {
+							console.log(asyncError);
+							res.status(500).render('../../../views/errors/5xx');
+						}
+						else {
+							res.render('detail_enrollments_add', {
+								title: 'Pendaftaran Mata Kuliah',
+								schedules: results[0],
+								student: results[1]
+							});
+						}
+					}
+				);			
+			}
+		},
+		{
+			path 	: '/:id/enrollments/add',
+			method	: 'post',
+			handler	: function(req, res, next) {
+				Schedule.findOne({"_id": ObjectId(req.body.schedule)})
+				.exec(function(findError, schedule) {
+					if (findError) {
+						console.log(findError);
+						res.status(500).render('../../../views/errors/5xx');
+					}
+					else {
+						if (schedule == null) {
+							res.status(404).render('../../../views/errors/404');
+						}
+						else {
+							var enrollment = new Enrollment();
+
+							enrollment.schedule = schedule._id;
+							enrollment.course = schedule.course;
+							enrollment.student = ObjectId(req.params.id);
+
+							enrollment.created = new Date();
+
+							enrollment.save(function(saveError) {
+								if (saveError) {
+									console.log(saveError);
+									res.status(500).render('../../../views/errors/5xx');
+								}
+								else {
+									res.redirect('/users/' + req.params.id + '/enrollments/add');
+								}
+							});
+						}
+					}
+				});
+			}
+		}
+	];
+
+	/* API Functions */
 
 	actions.api_index = [
 		{
@@ -108,7 +208,7 @@ var controller = function() {
 	];
 
 	actions.api_authenticate = {
-		path 	: '/authenticate',
+		path 	: '/authentication',
 		prefix	: 'api',
 		method	: 'post',
 		handler	: function(req, res, next) {

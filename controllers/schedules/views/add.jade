@@ -32,6 +32,11 @@ block content
 							each course in courses
 								option(value="#{course._id}") #{course.name}
 					.form-group
+						label Lokasi
+						select.form-control(name='location')
+							each location in locations
+								option(value="#{location._id}") #{location.name}
+					.form-group
 						label Dosen
 						select.form-control(name='lecturer')
 							each user in users

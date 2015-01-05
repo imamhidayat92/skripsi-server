@@ -6,10 +6,11 @@ var controller = function() {
 		passport	= require('passport')
 		;
 
-	var	Course 		= require('../../models/CourseSchema'),
-		Major 		= require('../../models/MajorSchema'),
-		Schedule 	= require('../../models/ScheduleSchema'),
-		User 		= require('../../models/UserSchema')
+	var	ClassLocation	= require('../../models/ClassLocationSchema'),
+		Course 			= require('../../models/CourseSchema'),
+		Major 			= require('../../models/MajorSchema'),
+		Schedule 		= require('../../models/ScheduleSchema'),
+		User 			= require('../../models/UserSchema')
 		;
 
 	var auth 		= require('../../libs/auth')(),
@@ -51,6 +52,9 @@ var controller = function() {
 				async.parallel(
 					[
 						function(callback) {
+							ClassLocation.find().exec(callback);
+						},
+						function(callback) {
 							Course.find().exec(callback);
 						},
 						function(callback) {
@@ -60,8 +64,9 @@ var controller = function() {
 					function(asyncError, results) {
 						res.render('add', {
 							title: 'Tambah Jadwal Baru',
-							courses: results[0],
-							users: results[1]
+							locations: results[0],
+							courses: results[1],
+							users: results[2]
 						});
 					}
 				);
@@ -111,7 +116,18 @@ var controller = function() {
 						return API.error.json(res, findError);
 					}	
 					else {
-						return API.success.json(res, schedules);
+						var populates = [
+							{path: 'course.major', model: 'Major'}
+						];
+
+						Schedule.populate(schedules, populates, function(populateError, schedules) {
+							if (populateError) {
+								return API.error.json(res, populateError);
+							}
+							else {
+								return API.success.json(res, schedules);
+							}
+						})
 					}
 				});
 			}

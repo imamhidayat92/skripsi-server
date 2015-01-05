@@ -4,10 +4,14 @@ var	mongoose	= require('mongoose'),
 	;
 
 var attendanceSchema = new Schema({
-	student		: 	{type: ObjectId, ref: 'User'},
-	schedule	: 	{type: ObjectId, ref: 'Schedule'},
+	status			: 	{type: String, lowercase: true, enum:['present', 'unknown', '']},
 
-	created		: 	Date
+	class_meeting	: 	{type: ObjectId, ref: 'ClassMeeting'},
+	student			: 	{type: ObjectId, ref: 'User'},
+	schedule		: 	{type: ObjectId, ref: 'Schedule'},
+
+	created			: 	Date,
+	modified		: 	{type: Date, default: new Date()}
 }, {collection: 'attendances'});
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

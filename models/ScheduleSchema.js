@@ -10,8 +10,10 @@ var scheduleSchema = new Schema({
 
 	course 			: 	{type: ObjectId, ref: 'Course'},
 	lecturer		: 	{type: ObjectId, ref: 'User'},
+	location		: 	{type: ObjectId, ref: 'ClassLocation'},
 
 	enrollments		: 	[{type: ObjectId, ref: 'Enrollment'}],
+	meetings		: 	[{type: ObjectId, ref: 'ClassMeeting'}],
 
 	created			: 	Date,
 	modified		: 	{type: Date, default: new Date()}
