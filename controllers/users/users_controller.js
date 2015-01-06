@@ -156,6 +156,13 @@ var controller = function() {
 									res.status(500).render('../../../views/errors/5xx');
 								}
 								else {
+									schedule.enrollments.push(enrollment);
+									schedule.save();
+
+									User.findByIdAndUpdate(ObjectId(req.params.id), {"enrollments": {$push: enrollment}}).exec();
+
+
+
 									res.redirect('/users/' + req.params.id + '/enrollments/add');
 								}
 							});
@@ -207,7 +214,7 @@ var controller = function() {
 		}
 	];
 
-	actions.api_authenticate = {
+	actions.api_authentication = {
 		path 	: '/authentication',
 		prefix	: 'api',
 		method	: 'post',
@@ -223,20 +230,25 @@ var controller = function() {
 			}
 			else {
 				return res.status(400).json({
-					message: "Invalid request."
+					message: "Permintaan data tidak valid."
 				});
 			}
 
 			User.findOne(conditions).exec(function(err, user) {
 				if (err) {
-					return API.error.json(res, err);
+					return API.error.json(res, err, "Terjadi kesalahan di dalam sistem.");
 				}
 				else {
-					if (user) {
-						return API.success.json(res, user);
+					if (user == null) {
+						return API.forbidden.json(res, "Autentikasi gagal dilakukan.");
 					}
 					else {
-						return API.forbidden.json(res);
+						if (user.role != 'lecturer') {
+							return API.forbidden.json(res, "Mahasiswa/Staf tidak diizinkan untuk mengakses sumber daya.")
+						}
+						else {
+							return API.success.json(res, user);
+						}
 					}
 				}
 			});
@@ -247,7 +259,7 @@ var controller = function() {
 		path 	: '/current',
 		prefix	: 'api',
 		method	: 'get',
-		before	: passport.authenticate('bearer', { session: false }),
+		before	: auth.check,
 		handler	: function(req, res, next) {
 			var conditions = {};
 
@@ -334,7 +346,7 @@ var controller = function() {
 		{
 			path 	: '/:id',
 			prefix	: 'api',
-			method	: 'patch',
+			method	: 'put',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				delete req.body._id;

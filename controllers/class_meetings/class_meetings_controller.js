@@ -112,6 +112,42 @@ var controller = function() {
 		}
 	];
 
+	actions.api_details_attendances = [
+		{
+			path 	: '/:id/attendances',
+			prefix	: 'api',
+			method	: 'post',
+			before	: auth.check,
+			handler	: function(req, res, next) {
+				ClassMeeting.findOne({"_id": ObjectId(req.params.id)})
+				.exec(function(findError, classMeeting) {
+					if (findError) {
+						return API.error.json(res, findError);
+					}
+					else {
+						if (classMeeting == null) {
+							return API.invalid.json(res, "Tidak dapat menemukan data pertemuan kelas.");
+						}
+						else {
+							_.each(req.body.attendances, function(attendance) {
+								classMeeting.attendances.push(ObjectId(attendance));
+							});
+
+							classMeeting.save(function(saveError, classMeeting) {
+								if (saveError) {
+									return API.error.json(res, saveError);
+								}
+								else {
+									return API.success.json(res, classMeeting);
+								}
+							});
+						}
+					}
+				});
+			}
+		}
+	];
+
 	return actions;
 };
 

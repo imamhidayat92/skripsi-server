@@ -111,6 +111,7 @@ var controller = function() {
 					"lecturer": ObjectId(req.user._id)
 				})
 				.populate('course')
+				.populate('location')
 				.exec(function(findError, schedules) {
 					if (findError) {
 						return API.error.json(res, findError);
