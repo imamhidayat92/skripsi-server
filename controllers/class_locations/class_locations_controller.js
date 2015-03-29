@@ -61,6 +61,10 @@ var controller = function() {
 		}
 	];
 
+	/* API Functions */
+
+	
+
 	return actions;
 };
 

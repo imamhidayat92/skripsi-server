@@ -4,7 +4,8 @@ var	mongoose	= require('mongoose'),
 	;
 
 var attendanceSchema = new Schema({
-	status			: 	{type: String, lowercase: true, enum:['present', 'unknown', '']},
+	status			: 	{type: String, lowercase: true, enum:['present', 'unknown', 'special_permission']},
+	remarks 		: 	{type: String},
 
 	class_meeting	: 	{type: ObjectId, ref: 'ClassMeeting'},
 	student			: 	{type: ObjectId, ref: 'User'},

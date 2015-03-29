@@ -223,7 +223,6 @@ var controller = function() {
 
 			if (typeof req.body.email != "undefined" && typeof req.body.password != "undefined") {
 				conditions.email = req.body.email;
-				conditions.password = req.body.password;
 			}
 			else if (typeof req.body.identifier != "undefined") {
 				conditions.identifier = req.body.identifier;
@@ -247,7 +246,12 @@ var controller = function() {
 							return API.forbidden.json(res, "Mahasiswa/Staf tidak diizinkan untuk mengakses sumber daya.")
 						}
 						else {
-							return API.success.json(res, user);
+							if (user.hashed_password == user.encryptPassword(req.body.password)) {
+								return API.success.json(res, user);
+							}
+							else {
+								return API.forbidden.json(res, "E-mail/password yang Anda masukkan tidak valid.")
+							}
 						}
 					}
 				}
