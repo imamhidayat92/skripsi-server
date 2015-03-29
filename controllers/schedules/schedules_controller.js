@@ -169,17 +169,20 @@ var controller = function() {
 			method	: 'get',
 			before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
-				Schedule.find({
+				Schedule.findOne({
 					"_id": ObjectId(req.params.id)
 				})
-				.populate('majors')
-				.populate('students')
+				.populate('course')
+				.populate('lecturer')
+				.populate('location')
+				.populate('enrollments')
+				.populate('meetings')
 				.exec(function(findError, schedules) {
 					if (findError) {
-						return API.error(res, findError);
+						return API.error.json(res, findError);
 					}
 					else {
-						return API.success(res, schedules);
+						return API.success.json(res, schedules);
 					}
 				});
 			}
