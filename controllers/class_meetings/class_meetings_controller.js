@@ -96,7 +96,9 @@ var controller = function() {
 					else {
 						_.each(req.body, function(v, k) {
 							classMeeting[k] = v;
-						})
+						});
+
+						classMeeting.modified = new Date();
 
 						classMeeting.save(function(saveError, savedClassMeeting) {
 							if (saveError) {

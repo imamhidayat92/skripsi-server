@@ -246,11 +246,17 @@ var controller = function() {
 							return API.forbidden.json(res, "Mahasiswa/Staf tidak diizinkan untuk mengakses sumber daya.")
 						}
 						else {
-							if (user.hashed_password == user.encryptPassword(req.body.password)) {
+							if (typeof req.body.identifier != "undefined") {
+								// Login via tag, accept.
 								return API.success.json(res, user);
 							}
 							else {
-								return API.forbidden.json(res, "E-mail/password yang Anda masukkan tidak valid.")
+								if (user.hashed_password == user.encryptPassword(req.body.password)) {
+									return API.success.json(res, user);
+								}
+								else {
+									return API.forbidden.json(res, "E-mail/password yang Anda masukkan tidak valid.")
+								}
 							}
 						}
 					}
@@ -306,7 +312,8 @@ var controller = function() {
 		method	: 'post',
 		before	: auth.check,
 		handler	: function(req, res, next) {
-			User.findOne({"identifier": ObjectId(req.body.identifier)})
+			User.findOne({"identifier": req.body.identifier})
+			.populate('major')
 			.exec(function(findError, user) {
 				if (findError) {
 					return API.error(res, findError);
