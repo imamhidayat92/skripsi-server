@@ -9,6 +9,7 @@ var userSchema = new Schema({
 	email				: 	{type: String, lowercase: true, trim: true,index: {unique: true}},
 	address				: 	String,
 	name				: 	String,
+    phone               :   String,
 	display_name		: 	String,
 
 	hashed_password		: 	String,

@@ -4,13 +4,15 @@ var	mongoose	= require('mongoose'),
 	;
 
 var teachingReportSchema = new Schema({
-	subject		: 	String,
-	description	: 	String,
+	subject		  : 	String,
+	description	  : 	String,
 
-	lecturer	: 	{type: ObjectId, ref: 'User'},
+	class_meeting : 	{type: ObjectId, ref: 'ClassMeeting'},
+	course        : 	{type: ObjectId, ref: 'Course'},
+	lecturer	  : 	{type: ObjectId, ref: 'User'},
 
-	created		: 	Date,
-	modified	: 	{type: Date, default: new Date()}
+	created		  : 	Date,
+	modified	  : 	{type: Date, default: new Date()}
 }, {collection: 'teaching_reports'});
 
 module.exports = mongoose.model('TeachingReport', teachingReportSchema);

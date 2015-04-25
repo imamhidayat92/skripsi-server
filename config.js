@@ -12,7 +12,7 @@ module.exports = {
 		collection: 'docs-skripsi'
 	},
 	morgan: {
-		mode: 'dev'
+		mode: 'combined'
 	},
 	redis: {
 		host: '127.0.0.1',

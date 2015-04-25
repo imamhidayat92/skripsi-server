@@ -11,6 +11,45 @@ var controller = function() {
 
 	var actions = {};
 
+	/* Pages */
+	
+	actions.add = [
+		{
+			path 	: '/add',
+			method	: 'get',
+			handler	: function(req, res, next) {
+				res.render('add', {
+					title: 'Add New Major'
+				});
+			}
+		},
+		{
+			path 	: '/add',
+			method	: 'post',
+			handler	: function(req, res, next) {
+				var user = new User();
+
+				_.each(req.body, function(v, k) {
+					user[k] = v;
+				});
+
+				user.provider = 'local';
+
+				user.save(function(saveError, savedUser) {
+					if (saveError) {
+						console.log(saveError);
+						return res.status(500).render('../../../views/errors/5xx');
+					}
+					else {
+						res.redirect('/users/add');
+					}
+				});
+			}
+		}
+	];
+	
+	/* API Functions */
+	
 	actions.api_index = [
 		{
 			path 	: '/',

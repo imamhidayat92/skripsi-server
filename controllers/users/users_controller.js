@@ -161,8 +161,6 @@ var controller = function() {
 
 									User.findByIdAndUpdate(ObjectId(req.params.id), {"enrollments": {$push: enrollment}}).exec();
 
-
-
 									res.redirect('/users/' + req.params.id + '/enrollments/add');
 								}
 							});
@@ -172,7 +170,47 @@ var controller = function() {
 			}
 		}
 	];
+	
+	actions.index = [
+		{
+			path 	: '/',
+			method	: 'get',
+			handler	: function(req, res, next) {
+				User.find()
+				.exec(function(findError, users) {
+					if (findError) {
+						// TODO: Render internal server error view.
+					}
+					else {
+						return res.status(200).render('index', {
+							title: 'Daftar User',
+							users: users
+						});
+					}
+				});
+            }
+		}
+	];
 
+    actions.login = [
+        {
+            path 	: '/login',
+			method	: 'get',
+			handler	: function(req, res, next) {
+                return res.status(200).render('login', {
+                    title: 'Login' 
+                });
+            }
+        },
+        {
+            path 	: '/login',
+			method	: 'post',
+			handler	: function(req, res, next) {
+			
+            }
+        }
+    ];
+    
 	/* API Functions */
 
 	actions.api_index = [
