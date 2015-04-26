@@ -14,14 +14,18 @@ var express 		= require('express'),
 	RedisStore 		= require('connect-redis')(session),
 	passport 		= require('passport'),
 	
+	/* Main Server App Object */
 	app				= express(),
 
 	// Passport Strategy
 	BearerStrategy	= require('passport-http-bearer').Strategy,
 	LocalStrategy	= require('passport-local').Strategy,
 
-	auth  			= require('./lib/auth')(),
-	utils  			= require('./lib/utils')(),
+	/* Internal Libraries */
+	auth  			= require('./libs/auth')(),
+	utils  			= require('./libs/utils')(),
+
+	/* Server Configuration */
 	config			= require('./config'),
 
 	User 			= require('./models/UserSchema')
@@ -56,6 +60,10 @@ passport.use(new BearerStrategy(
 ));
 
 passport.use(new LocalStrategy(
+	{
+		usernameField: 'email',
+		passwordField: 'password'
+	},
     function(email, password, done) {
         User.findOne({email: email}, function(err, user) {
             if (err) {
@@ -84,7 +92,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 /* Set cookie parser for request sent to the server. */
-app.user(cookieParser(config.security.cookie_secret))
+app.use(cookieParser(config.security.cookie_secret))
 
 /* Set up session using RedisStore. */
 app.use(session({
@@ -106,25 +114,36 @@ app.use(express.static(__dirname + '/public'));
 
 /* Set arguments to be bypassed to every controller. */
 var args = {
-	config: config,
-	auth: auth
+	auth	: auth,
+	config	: config,
+	utils	: utils
+};
+
+/* Global function for every controller actions. */
+var initGlobal = function(app) {
+	app.all('*', function(req, res, next) {
+		console.log('-- Boom!');
+
+		if (typeof req.user != 'undefined') {
+			res.locals.user = req.user;
+		}
+
+		res.locals.current = {
+			url		: req.protocol + '://' + req.get('host') + req.originalUrl,
+			user	: req.user
+		};
+
+		res.locals.helper = {
+
+		};
+
+		next();
+	});
 };
 
 /* Boot up! Set up all controllers. */
-require('./libs/boot')(app, args, { verbose: !module.parent });
-
-/* Global function for every controller actions. */
-app.all('*', function(req, res, next) {
-	if (typeof req.user != 'undefined') {
-		res.locals.user = req.user;
-	}
-
-	res.locals.current = {
-		url: req.protocol + '://' + req.get('host') + req.originalUrl
-	};
-
-	next()
-});
+require('./libs/boot')(app, args, { verbose: !module.parent, initGlobal: initGlobal });
+initGlobal(app);
 
 /* Handle internal server error and render a view. */
 app.use(function(err, req, res, next){

@@ -3,9 +3,10 @@ var express = require('express'),
     _       = require('underscore')
     ;
 
-module.exports = function(parent, args, options) {
+module.exports = function(parent, args, payload) {
     
-    var verbose = options.verbose;
+	var initGlobal = payload.initGlobal;
+    var verbose = payload.verbose;
 
     var appendSpace = function(str, n) {
         var tmp = str;
@@ -66,6 +67,8 @@ module.exports = function(parent, args, options) {
                 loadAction(app, controller[action], action, path);
             }
         }
+		
+		initGlobal(app);
 
         parent.use(app);
     });

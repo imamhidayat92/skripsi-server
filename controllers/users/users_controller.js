@@ -206,7 +206,7 @@ var controller = function(args) {
             path 	: '/login',
 			method	: 'post',
 			handler	: function(req, res, next) {
-			
+				
             }
         }
     ];

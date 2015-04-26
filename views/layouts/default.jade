@@ -10,7 +10,13 @@ html
 		link(rel='stylesheet', type='text/css', href='/css/styles.css')
 
 body
+	if (typeof current.user != "undefined")
+		include ../elements/navigation/user
+	else
+		include ../elements/navigation/site
+	
 	block content
+	
 	include ../elements/footer
 
 	script(src='/components/react/JSXTransformer.js')
