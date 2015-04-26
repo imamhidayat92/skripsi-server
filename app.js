@@ -1,7 +1,13 @@
+console.log();
+console.log('Script executed at ' + (new Date()));
+console.log();
+
 var express 		= require('express'),
 	session			= require('express-session'),
 	bodyParser		= require('body-parser'),
-	morgan			= require('morgan'),
+	cookieParser	= require('cookie-parser'),
+	flash			= require('connect-flash'),
+    morgan			= require('morgan'),
 	compression		= require('compression'),
 	mongoose		= require('mongoose'),
 	redis 			= require('redis'),
@@ -14,14 +20,12 @@ var express 		= require('express'),
 	BearerStrategy	= require('passport-http-bearer').Strategy,
 	LocalStrategy	= require('passport-local').Strategy,
 
+	auth  			= require('./lib/auth')(),
+	utils  			= require('./lib/utils')(),
 	config			= require('./config'),
 
 	User 			= require('./models/UserSchema')
 	;
-
-console.log();
-console.log('Script executed at ' + (new Date()));
-console.log();
 
 /* Connecting app to Redis. */
 redis = redis.createClient();
@@ -51,20 +55,40 @@ passport.use(new BearerStrategy(
 	}
 ));
 
+passport.use(new LocalStrategy(
+    function(email, password, done) {
+        User.findOne({email: email}, function(err, user) {
+            if (err) {
+                return done(err);
+            }
+            if (!user) {
+                return done(null, false, { message: 'Incorrect email.' });
+            }
+            if (!user.validPassword(password)) {
+                return done(null, false, { message: 'Incorrect password.' });
+            }
+            return done(null, user);
+        });
+    }
+));
+
 app.use(passport.initialize());
 
 /* Set views directory and engine. */
 app.set('views', './views');
 app.set('view engine', 'jade');
 
-/* Set body parser for request sent to the app. */
+/* Set body parser for request sent to the server. */
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
+/* Set cookie parser for request sent to the server. */
+app.user(cookieParser(config.security.cookie_secret))
+
 /* Set up session using RedisStore. */
 app.use(session({
-	cookie: { maxAge:	config.security.session_timeout },
+	cookie: { maxAge: config.security.session_timeout },
 	secret: config.security.session_secret,
 	store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis }),
 	saveUninitialized: true,
@@ -80,8 +104,14 @@ app.use(morgan(config.morgan.mode));
 /* Set static file location. */
 app.use(express.static(__dirname + '/public'));
 
+/* Set arguments to be bypassed to every controller. */
+var args = {
+	config: config,
+	auth: auth
+};
+
 /* Boot up! Set up all controllers. */
-require('./libs/boot')(app, { verbose: !module.parent });
+require('./libs/boot')(app, args, { verbose: !module.parent });
 
 /* Global function for every controller actions. */
 app.all('*', function(req, res, next) {

@@ -3,7 +3,7 @@ var express = require('express'),
     _       = require('underscore')
     ;
 
-module.exports = function(parent, options) {
+module.exports = function(parent, args, options) {
     
     var verbose = options.verbose;
 
@@ -43,7 +43,7 @@ module.exports = function(parent, options) {
     fs.readdirSync(__dirname + '/../controllers').forEach(function(directoryName) {
         verbose && console.log('\n  %s:', directoryName);
 
-        var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')();
+        var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')(args);
         var name = typeof controller.name == "undefined" ? directoryName : controller.name;
         
         var app = express();

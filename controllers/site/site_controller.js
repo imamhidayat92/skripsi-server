@@ -1,4 +1,4 @@
-var controller = function() {
+var controller = function(args) {
 	var User 		= require('../../models/UserSchema');
 
 	var auth 		= require('../../libs/auth')(),

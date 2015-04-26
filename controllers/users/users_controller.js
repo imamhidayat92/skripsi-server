@@ -1,4 +1,4 @@
-var controller = function() {
+var controller = function(args) {
 	var	_ 			= require('underscore'),
 		async		= require('async'),
 		passport	= require('passport'),
@@ -12,8 +12,8 @@ var controller = function() {
 		User 		= require('../../models/UserSchema')
 		;
 
-	var auth 		= require('../../libs/auth')(),
-		utils		= require('../../libs/utils')(),
+	var auth 		= args.auth,
+		utils		= args.utils,
 		API 		= utils.API
 		;
 

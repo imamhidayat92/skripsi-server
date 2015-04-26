@@ -1,4 +1,4 @@
-var controller = function() {
+var controller = function(args) {
 	var _		= require('underscore')
 		;
 
