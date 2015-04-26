@@ -65,14 +65,18 @@ passport.use(new LocalStrategy(
 		passwordField: 'password'
 	},
     function(email, password, done) {
+		console.log('-- ' + email + ', ' + password)
         User.findOne({email: email}, function(err, user) {
             if (err) {
+				console.log(err);
                 return done(err);
             }
             if (!user) {
+				console.log('Incorrect email.');
                 return done(null, false, { message: 'Incorrect email.' });
             }
             if (!user.validPassword(password)) {
+				console.log('Incorrect password.');
                 return done(null, false, { message: 'Incorrect password.' });
             }
             return done(null, user);
@@ -103,6 +107,9 @@ app.use(session({
     resave: true
 }));
 
+/* Set up flash message. */
+app.use(flash());
+
 /* Minify output. */
 app.use(compression());
 
@@ -114,16 +121,20 @@ app.use(express.static(__dirname + '/public'));
 
 /* Set arguments to be bypassed to every controller. */
 var args = {
-	auth	: auth,
-	config	: config,
-	utils	: utils
+	auth		: auth,
+	config		: config,
+	pages 		: {
+		FORBIDDEN				: '../../../views/errors/403',
+		INTERNAL_SERVER_ERROR	: '../../../views/errors/5xx',
+		NOT_FOUND				: '../../../views/errors/404'
+	},
+	passport	: passport,
+	utils		: utils
 };
 
 /* Global function for every controller actions. */
 var initGlobal = function(app) {
 	app.all('*', function(req, res, next) {
-		console.log('-- Boom!');
-
 		if (typeof req.user != 'undefined') {
 			res.locals.user = req.user;
 		}
@@ -136,7 +147,7 @@ var initGlobal = function(app) {
 		res.locals.helper = {
 
 		};
-
+		
 		next();
 	});
 };

@@ -15,6 +15,13 @@ body
 	else
 		include ../elements/navigation/site
 	
+	if (typeof flashMessages != "undefined")
+		.container
+			.col-md-12
+				each flashMessage in flashMessages
+					.alert(class='alert-#{flashMessage.type}')
+						p #{flashMessage.message}
+
 	block content
 	
 	include ../elements/footer

@@ -28,7 +28,7 @@ var auth = function() {
 					}
 				}
 				else {
-					if (err) { return next(err); }
+					if (authenticateError) { return next(authenticateError); }
 					if (!user) { return res.redirect('/users/login'); }
 					
 					req.logIn(user, function(err) {

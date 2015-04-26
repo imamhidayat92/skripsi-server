@@ -77,9 +77,26 @@ module.exports = function() {
 			}
 		}
 	};
-	
+
+	var getFlashMessages = function(req, res, next) {
+		var flashMessages = [];
+		var flashTypes = ['danger', 'info', 'success', 'warning'];
+		for (var i in flashTypes) {
+			var type = flashTypes[i];
+			var message = req.flash(type);
+			if (message.length > 0) {
+				flashMessages.push({
+					type: type,
+					message: message[0]
+				});
+			}	
+		}
+		
+		return flashMessages;
+	};
 
 	return {
-		API: APIUtility
+		API: APIUtility,
+		getFlashMessages: getFlashMessages
 	};
 };

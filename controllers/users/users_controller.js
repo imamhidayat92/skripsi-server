@@ -13,6 +13,8 @@ var controller = function(args) {
 		;
 
 	var auth 		= args.auth,
+		passport 	= args.passport,
+		pages 		= args.pages,
 		utils		= args.utils,
 		API 		= utils.API
 		;
@@ -44,7 +46,6 @@ var controller = function(args) {
 		{
 			path 	: '/add',
 			method	: 'post',
-			// before	: passport.authenticate('bearer', { session: false }),
 			handler	: function(req, res, next) {
 				var user = new User();
 
@@ -57,7 +58,7 @@ var controller = function(args) {
 				user.save(function(saveError, savedUser) {
 					if (saveError) {
 						console.log(saveError);
-						return res.status(500).render('../../../views/errors/5xx');
+						return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
 					}
 					else {
 						res.redirect('/users/add');
@@ -66,6 +67,17 @@ var controller = function(args) {
 			}
 		}
 	];
+	
+	actions.dashboard = {
+		path	: '/dashboard',
+		method	: 'get',
+		before 	: auth.check,
+		handler	: function(req, res, next) {
+			return res.render('dashboard', {
+				title: 'Dashboard'
+			});
+		}
+	};
 
 	actions.detail_enrollments = [
 		{
@@ -114,7 +126,7 @@ var controller = function(args) {
 					function(asyncError, results) {
 						if (asyncError) {
 							console.log(asyncError);
-							res.status(500).render('../../../views/errors/5xx');
+							res.status(500).render(pages.INTERNAL_SERVER_ERROR);
 						}
 						else {
 							res.render('detail_enrollments_add', {
@@ -135,11 +147,11 @@ var controller = function(args) {
 				.exec(function(findError, schedule) {
 					if (findError) {
 						console.log(findError);
-						res.status(500).render('../../../views/errors/5xx');
+						res.status(500).render(pages.INTERNAL_SERVER_ERROR);
 					}
 					else {
 						if (schedule == null) {
-							res.status(404).render('../../../views/errors/404');
+							res.status(404).render(pages.NOT_FOUND);
 						}
 						else {
 							var enrollment = new Enrollment();
@@ -153,7 +165,7 @@ var controller = function(args) {
 							enrollment.save(function(saveError) {
 								if (saveError) {
 									console.log(saveError);
-									res.status(500).render('../../../views/errors/5xx');
+									res.status(500).render(pages.INTERNAL_SERVER_ERROR);
 								}
 								else {
 									schedule.enrollments.push(enrollment);
@@ -197,8 +209,10 @@ var controller = function(args) {
             path 	: '/login',
 			method	: 'get',
 			handler	: function(req, res, next) {
-                return res.status(200).render('login', {
-                    title: 'Login' 
+                console.log('-- Displaying login form..');
+				return res.status(200).render('login', {
+                    title: 'Login',
+					flashMessages: utils.getFlashMessages(req, res, next)
                 });
             }
         },
@@ -206,8 +220,30 @@ var controller = function(args) {
             path 	: '/login',
 			method	: 'post',
 			handler	: function(req, res, next) {
-				
-            }
+				passport.authenticate('local', function(err, user, info) {
+					if (err) {
+						console.log(err);
+						next(err);
+					} 
+					else {
+						if (!user) {
+							req.flash('danger', 'Wrong username or password.');
+							return res.redirect('/users/login');
+						}
+						else {
+							req.logIn(user, function(logInError) {
+								if (logInError) {
+									next(logInError);			
+								}
+								else {
+									return res.redirect('/users/dashboard');
+								}
+							});
+
+						}
+					}
+				})(req, res, next);
+			}
         }
     ];
     

@@ -74,13 +74,13 @@ userSchema.methods = {
 	},
 
 	generateToken: function() {
-		this.token = crypto.createHmac('sha1',this.makeSalt()).update(this.email).digest('hex');
+		this.token = crypto.createHmac('sha1', this.makeSalt()).update(this.email).digest('hex');
 		return this.token;
 	},
 
 	validPassword: function(password) {
 		if (!password) return false;
-		if(this.encryptPassword(password)!=this.hashed_password) return false;
+		if (this.encryptPassword(password) != this.hashed_password) return false;
 		return true;
 	},
 };
