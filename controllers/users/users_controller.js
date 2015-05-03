@@ -209,11 +209,15 @@ var controller = function(args) {
             path 	: '/login',
 			method	: 'get',
 			handler	: function(req, res, next) {
-                console.log('-- Displaying login form..');
-				return res.status(200).render('login', {
-                    title: 'Login',
-					flashMessages: utils.getFlashMessages(req, res, next)
-                });
+                if (req.isAuthenticated()) {
+					return res.redirect('/users/dashboard');
+				}
+				else {
+					return res.status(200).render('login', {
+						title: 'Login',
+						flashMessages: utils.getFlashMessages(req, res, next)
+					});	
+				}
             }
         },
         {
@@ -231,8 +235,10 @@ var controller = function(args) {
 							return res.redirect('/users/login');
 						}
 						else {
-							req.logIn(user, function(logInError) {
+							req.login(user, function(logInError) {
 								if (logInError) {
+									console.log(logInError);
+									req.flash('danger', 'Login failed.');
 									next(logInError);			
 								}
 								else {
@@ -246,6 +252,15 @@ var controller = function(args) {
 			}
         }
     ];
+	
+	actions.logout = {
+		path	: '/logout',
+		method	: 'get',
+		handler	: function(req, res, next) {
+			req.logout();
+			return res.redirect('/');
+		}
+	};
     
 	/* API Functions */
 

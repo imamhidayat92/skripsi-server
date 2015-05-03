@@ -1,3 +1,5 @@
+// TODO: Check machine environment variables to ensure all values are used properly.
+
 module.exports = {
 	app: {
 		name: 'Skripsi Server',
@@ -12,7 +14,7 @@ module.exports = {
 		collection: 'docs-skripsi'
 	},
 	morgan: {
-		mode: 'combined'
+		mode: 'dev'
 	},
 	redis: {
 		host: '127.0.0.1',

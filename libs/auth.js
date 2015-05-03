@@ -11,6 +11,7 @@ var auth = function() {
 		;
 
 	obj.check = function(req, res, next) {
+		console.log(req.isAuthenticated());
 		if (!req.isAuthenticated()) {
 			passport.authenticate('bearer', {session: false}, function(authenticateError, user, info) {
 				if (req.originalUrl.indexOf('/api/') != -1) {

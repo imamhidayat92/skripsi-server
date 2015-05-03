@@ -14,5 +14,11 @@ nav.navbar.navbar-default
 					a(href='/users/dashboard') Dashboard
 			
 			ul.nav.navbar-nav.pull-right
-				li
-					a(href='#') User Account
+				li.dropdown
+					a.dropdown-toggle(href='#', data-toggle='dropdown')
+						| User Account 
+						span.caret
+					ul.dropdown-menu(role='menu')
+						li
+							a(href='#') Logout
+						

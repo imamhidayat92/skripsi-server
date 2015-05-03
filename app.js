@@ -48,6 +48,30 @@ mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.colle
     else console.log(config.app.name + " successfully connected to MongoDB.");
 });
 
+/* Set views directory and engine. */
+app.set('views', './views');
+app.set('view engine', 'jade');
+
+/* Set body parser for request sent to the server. */
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
+
+/* Set cookie parser for request sent to the server. */
+app.use(cookieParser(config.security.cookie_secret))
+
+/* Set up session using RedisStore. */
+app.use(session({
+	cookie: { maxAge: config.security.session_timeout },
+	secret: config.security.session_secret,
+	store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis }),
+	saveUninitialized: true,
+    resave: true
+}));
+
+/* Set up flash message. */
+app.use(flash());
+
 /* Setting Up Passport */
 passport.use(new BearerStrategy(
 	function(token, done) {
@@ -79,36 +103,23 @@ passport.use(new LocalStrategy(
 				console.log('Incorrect password.');
                 return done(null, false, { message: 'Incorrect password.' });
             }
+			console.log(user);
             return done(null, user);
         });
     }
 ));
 
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(id, done) {
+    done(null, id);
+});
+
 app.use(passport.initialize());
+app.use(passport.session());
 
-/* Set views directory and engine. */
-app.set('views', './views');
-app.set('view engine', 'jade');
-
-/* Set body parser for request sent to the server. */
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
-
-/* Set cookie parser for request sent to the server. */
-app.use(cookieParser(config.security.cookie_secret))
-
-/* Set up session using RedisStore. */
-app.use(session({
-	cookie: { maxAge: config.security.session_timeout },
-	secret: config.security.session_secret,
-	store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis }),
-	saveUninitialized: true,
-    resave: true
-}));
-
-/* Set up flash message. */
-app.use(flash());
 
 /* Minify output. */
 app.use(compression());
