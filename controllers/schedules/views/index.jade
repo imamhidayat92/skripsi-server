@@ -5,18 +5,22 @@ block content
 		.row
 			.col-md-12
 				.page-header
-					h1 Jadwal Kuliah
-
+					.row
+						.col-md-10
+							h1 Schedules
+						.col-md-2
+							a.btn.btn-block.btn-success.btn-top-action(href='/schedules/add') Add New Schedule
 		.row
 			.col-md-12
 				table.table.table-hover
 					thead
-						th Kode Hari
-						th Mulai
-						th Selesai
-						th Mata Kuliah
-						th Program Studi
-						th Dosen
+						th Day Code
+						th Start Time
+						th End Time
+						th Course
+						th Major
+						th Lecturer
+						th Actions
 					tbody
 						each schedule in schedules
 							tr
@@ -38,3 +42,7 @@ block content
 											| Umum
 								td
 									p #{schedule.lecturer.display_name}
+								td
+									a.btn.btn-sm.btn-warning(href='#') Suspend
+									a.btn.btn-sm.btn-info(href='#') Detail
+									

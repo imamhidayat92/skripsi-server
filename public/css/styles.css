@@ -11,3 +11,7 @@ div.footer {
 	padding: 10px 0 10px 0;
 	border-top: solid 1px #ebebeb;
 }
+
+.btn-top-action {
+	margin-top: 20px;
+}

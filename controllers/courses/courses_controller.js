@@ -10,7 +10,8 @@ var controller = function(args) {
 		Major 		= require('../../models/MajorSchema')
 		;
 
-	var utils		= require('../../libs/utils'),
+	var utils		= args.utils,
+		auth 		= args.auth,
 		API 		= utils.API
 		;
 
@@ -141,6 +142,15 @@ var controller = function(args) {
 			}
 		}
 	];
+	
+	actions.index = {
+		path 	: '',
+		method 	: 'get',
+		before	: auth.check,
+		handler	: function(req, res, next) {
+			
+		}
+	};
 
 	/* API Functions */
 
