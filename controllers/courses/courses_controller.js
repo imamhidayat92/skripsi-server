@@ -159,7 +159,7 @@ var controller = function(args) {
 			prefix	: 'api',
 			path 	: '/',
 			method	: 'get',
-			before	: passport.authenticate('bearer', { session: false }),
+			before	: auth.check,
 			handler	: function(req, res, next) {
 				Course.find()
 				.exec(function(findError, courses) {
@@ -176,7 +176,7 @@ var controller = function(args) {
 			prefix	: 'api',
 			path 	: '/',
 			method	: 'post',
-			before	: passport.authenticate('bearer', { session: false }),
+			before	: auth.check,
 			handler	: function(req, res, next) {
 				var course = new Course();
 

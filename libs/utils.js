@@ -5,6 +5,9 @@ module.exports = function() {
 
 	/* Standard API Utility */
 	var APIUtility = {};
+	var LoggerUtility = {};
+	
+	/* API Helper Utility */
 	
 	APIUtility.error = {
 		json: function(res, errorObject, message, errorInfo) {
@@ -78,6 +81,25 @@ module.exports = function() {
 		}
 	};
 
+	/* Logger Helper Utility */
+	
+	LoggerUtility.printError = function(error) {
+		console.log('-- Error');
+		console.log(error);
+	};
+	
+	LoggerUtility.printMessage = function(message) {
+		console.log('-- ' + message);
+	};
+	
+	LoggerUtility.printMessages = function(messages) {
+		for (var i in messages) {
+			console.log('-- ' + messages[i]);	
+		};
+	};
+	
+	/* Misc. */
+	
 	var getFlashMessages = function(req, res, next) {
 		var flashMessages = [];
 		var flashTypes = ['danger', 'info', 'success', 'warning'];
@@ -97,6 +119,7 @@ module.exports = function() {
 
 	return {
 		API: APIUtility,
+		Logger: LoggerUtility,
 		getFlashMessages: getFlashMessages
 	};
 };
