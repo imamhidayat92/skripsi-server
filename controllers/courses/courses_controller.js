@@ -1,16 +1,19 @@
 var controller = function(args) {
-	var	_ 			= require('underscore'),
-		async 		= require('async'),
+	var	
+		_ 			= require('underscore'),
+		async 	= require('async'),
 		mongoose	= require('mongoose'),
 		ObjectId	= mongoose.Types.ObjectId,
 		passport	= require('passport')
 		;
 
-	var	Course 		= require('../../models/CourseSchema'),
+	var	
+		Course 		= require('../../models/CourseSchema'),
 		Major 		= require('../../models/MajorSchema')
 		;
 
-	var utils		= args.utils,
+	var 
+		utils		= args.utils,
 		auth 		= args.auth,
 		API 		= utils.API
 		;
@@ -67,7 +70,7 @@ var controller = function(args) {
 		}
 	];
 
-	actions.detail = {
+	actions.details = {
 		path 	: '/:id',
 		method	: 'get',
 		handler	: function(req, res, next) {
@@ -91,6 +94,27 @@ var controller = function(args) {
 			});
 		}
 	};
+	
+	actions.details_class_meetings = [
+		{
+			path 		: '/:id',
+			prefix	: 'api',
+			method	: 'get',
+			before	: auth.check,
+			handler	: function(req, res, next) {
+			
+			}
+		},
+		{
+			path 		: '/:id',
+			prefix	: 'api',
+			method	: 'get',
+			before	: auth.check,
+			handler	: function(req, res, next) {
+			
+			}
+		}
+	];
 
 	actions.edit = [
 		{

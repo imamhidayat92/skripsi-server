@@ -1,21 +1,24 @@
 var controller = function(args) {
-	var	_ 			= require('underscore'),
+	var	
+		_ 			= require('underscore'),
 		async		= require('async'),
 		passport	= require('passport'),
 		mongoose	= require('mongoose'),
 		ObjectId	= mongoose.Types.ObjectId
 		;
 
-	var	ClassMeeting	= require('../../models/ClassMeetingSchema'),
+	var	
+		ClassMeeting	= require('../../models/ClassMeetingSchema'),
 		Major 			= require('../../models/MajorSchema'),
 		Schedule 		= require('../../models/ScheduleSchema'),
-		User 			= require('../../models/UserSchema')
+		User 				= require('../../models/UserSchema')
 		;
 
-	var auth 		= require('../../libs/auth')(),
+	var 
+		auth 		= require('../../libs/auth')(),
 		utils		= require('../../libs/utils')(),
 		API 		= utils.API,
-		Logger 		= utils.Logger
+		Logger 	= utils.Logger
 		;
 
 	var actions = {};
@@ -29,7 +32,39 @@ var controller = function(args) {
 			method	: 'get',
 			before	: auth.check,
 			handler	: function(req, res, next) {
+				var conditions = {
+					$and: [
 						
+					]
+				};
+				
+				var orConditions = [];
+				
+				async.parallel(
+					[
+						function(callback) {
+							ClassMeeting.find(conditions)
+							.exec(callback);
+						},
+						function(callback) {
+							ClassMeeting.find(conditions)
+							.count(callback);
+						},
+						function(callback) {
+							
+						}
+					],
+					function(asyncError, results) {
+						if (asyncError) {
+							return API.error.json(res, asyncError);	
+						}
+						else {
+							var classMeetings = results[0];
+							var classMeetingCount = results[1];
+							return API.success.json();
+						}
+					}
+				);
 			}
 		},
 		{
@@ -126,9 +161,9 @@ var controller = function(args) {
 						_.each(req.body, function(v, k) {
 							classMeeting[k] = v;
 						});
-
+						
 						classMeeting.modified = new Date();
-
+						
 						classMeeting.save(function(saveError, savedClassMeeting) {
 							if (saveError) {
 								return API.error.json(res, saveError);
@@ -222,7 +257,7 @@ var controller = function(args) {
 	
 	actions.api_details_teaching_reports = [
 		{
-			path 	: '/:id/lecturer_reports',
+			path 	: '/:id/teaching_reports',
 			prefix	: 'api',
 			method	: 'post',
 			before	: auth.check,
