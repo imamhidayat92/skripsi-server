@@ -1,14 +1,14 @@
-var	mongoose	= require('mongoose'),
-	Schema		= mongoose.Schema,
-	ObjectId	= Schema.ObjectId
-	;
+var   mongoose = require('mongoose'),
+   Schema      = mongoose.Schema,
+   ObjectId = Schema.ObjectId
+   ;
 
 var majorSchema = new Schema({
-	name		: 	String,
-	color		: 	String,
-	description	: 	String,
+   name        :  String,
+   color       :  String,
+   description :  String,
 
-	students	: 	{type: ObjectId, ref: 'User'}
+   students    :  {type: ObjectId, ref: 'User'}
 }, {collection: 'majors'});
 
 module.exports = mongoose.model('Major', majorSchema);

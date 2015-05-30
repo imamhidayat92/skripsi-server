@@ -5,75 +5,75 @@ var express = require('express'),
 
 module.exports = function(parent, args, payload) {
     
-	var initGlobal = payload.initGlobal;
-    var verbose = payload.verbose;
+   var initGlobal = payload.initGlobal;
+   var verbose = payload.verbose;
 
-    var appendSpace = function(str, n) {
-        var tmp = str;
+   var appendSpace = function(str, n) {
+      var tmp = str;
         
-        for (var i = 0; i < n; i++) {
-            tmp += " ";
-        }
+      for (var i = 0; i < n; i++) {
+         tmp += " ";
+      }
 
-        return tmp;
-    }
+      return tmp;
+   }
 
-    var loadAction = function(app, actionObject, actionName, rootPath) {
-        var action = actionObject;
+   var loadAction = function(app, actionObject, actionName, rootPath) {
+      var action = actionObject;
 
-        var actionPath = '';
+      var actionPath = '';
 
-        if (typeof action.prefix != "undefined") {
-            actionPath = '/' + action.prefix + rootPath + action.path;
-        }
-        else {
-            actionPath = rootPath + action.path;
-        }
+      if (typeof action.prefix != "undefined") {
+         actionPath = '/' + action.prefix + rootPath + action.path;
+      }
+      else {
+         actionPath = rootPath + action.path;
+      }
 
-        if (action.before) {
-            app[action.method](actionPath, action.before, action.handler);
-            verbose && console.log('    %s %s -> before -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
-        } else {
-            app[action.method](actionPath, action.handler);
-            verbose && console.log('    %s %s -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
-        }
-    }
+      if (action.before) {
+         app[action.method](actionPath, action.before, action.handler);
+         verbose && console.log('    %s %s -> before -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
+      } else {
+         app[action.method](actionPath, action.handler);
+         verbose && console.log('    %s %s -> %s', appendSpace(action.method.toUpperCase(), 5 - action.method.length), actionPath, actionName);
+      }
+   }
 
-    verbose && console.log('----- Boot Up!');
+   verbose && console.log('----- Boot Up!');
 
-    fs.readdirSync(__dirname + '/../controllers').forEach(function(directoryName) {
-        verbose && console.log('\n  %s:', directoryName);
+   fs.readdirSync(__dirname + '/../controllers').forEach(function(directoryName) {
+      verbose && console.log('\n  %s:', directoryName);
 
-        var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')(args);
-        var name = typeof controller.name == "undefined" ? directoryName : controller.name;
-        
-        var app = express();
-        var action;
+      var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')(args);
+      var name = typeof controller.name == "undefined" ? directoryName : controller.name;
 
-        var path = controller.path || '/' + name;
+      var app = express();
+      var action;
 
-        app.set('views', './controllers/' + directoryName + '/views');
+      var path = controller.path || '/' + name;
 
-        for (var action in controller) {
+      app.set('views', './controllers/' + directoryName + '/views');
 
-            if (~['name'].indexOf(action)) continue;
-            
-            if (_.isArray(controller[action])) {
-                for (var i = 0; i < controller[action].length; i++) {
-                    loadAction(app, controller[action][i], action + '[' + i + ']', path);
-                }
-            }
-            else {
-                loadAction(app, controller[action], action, path);
-            }
-        }
-		
-		initGlobal(app);
+      for (var action in controller) {
 
-        parent.use(app);
-    });
+         if (~['name'].indexOf(action)) continue;
 
-    verbose && console.log();
-    verbose && console.log('----- End of Boot Up.');
-    verbose && console.log();
+         if (_.isArray(controller[action])) {
+             for (var i = 0; i < controller[action].length; i++) {
+                 loadAction(app, controller[action][i], action + '[' + i + ']', path);
+             }
+         }
+         else {
+             loadAction(app, controller[action], action, path);
+         }
+      }
+
+      initGlobal(app);
+
+      parent.use(app);
+   });
+
+   verbose && console.log();
+   verbose && console.log('----- End of Boot Up.');
+   verbose && console.log();
 };
