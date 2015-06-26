@@ -1,48 +1,48 @@
 extends ../../../views/layouts/default
 
 block content
-	.container
-		.row
-			.col-md-12
-				.page-header
-					.row
-						.col-md-10
-							h1 Schedules
-						.col-md-2
-							a.btn.btn-block.btn-success.btn-top-action(href='/schedules/add') Add New Schedule
-		.row
-			.col-md-12
-				table.table.table-hover
-					thead
-						th Day Code
-						th Start Time
-						th End Time
-						th Course
-						th Major
-						th Lecturer
-						th Actions
-					tbody
-						each schedule in schedules
-							tr
-								td
-									p #{schedule.day_code}
-								td
-									p #{schedule.start_time}
-								td
-									p #{schedule.end_time}
-								td
-									p #{schedule.course.name}
-								td
-									p
-										if (schedule.course.major)
-											span(style='height: 12px; width: 12px; background-color: #{schedule.course.major.color}; display: inline-block; margin-right: 10px;')
-											| #{schedule.course.major.name}
-										else
-											span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
-											| Umum
-								td
-									p #{schedule.lecturer.display_name}
-								td
-									a.btn.btn-sm.btn-warning(href='#') Suspend
-									a.btn.btn-sm.btn-info(href='#') Detail
-									
+   .container
+      .row
+         .col-md-12
+            .page-header
+               .row
+                  .col-md-10
+                     h1 Schedules
+                  .col-md-2
+                     a.btn.btn-block.btn-success.btn-top-action(href='/schedules/add') Add New Schedule
+      .row
+         .col-md-12
+            table.table.table-hover
+               thead
+                  th Day Code
+                  th Start Time
+                  th End Time
+                  th Course
+                  th Major
+                  th Lecturer
+                  th Actions
+               tbody
+                  each schedule in schedules
+                     tr
+                        td
+                           p #{schedule.day_code}
+                        td
+                           p #{schedule.start_time}
+                        td
+                           p #{schedule.end_time}
+                        td
+                           p #{schedule.course.name}
+                        td
+                           p
+                              if (schedule.course.major)
+                                 span(style='height: 12px; width: 12px; background-color: #{schedule.course.major.color}; display: inline-block; margin-right: 10px;')
+                                 | #{schedule.course.major.name}
+                              else
+                                 span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
+                                 | Umum
+                        td
+                           p #{schedule.lecturer.display_name}
+                        td
+                           a.btn.btn-sm.btn-warning(href='#') Suspend
+                           a.btn.btn-sm.btn-info(href='#') Detail
+                           

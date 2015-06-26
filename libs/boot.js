@@ -4,13 +4,13 @@ var express = require('express'),
     ;
 
 module.exports = function(parent, args, payload) {
-    
+
    var initGlobal = payload.initGlobal;
    var verbose = payload.verbose;
 
    var appendSpace = function(str, n) {
       var tmp = str;
-        
+
       for (var i = 0; i < n; i++) {
          tmp += " ";
       }

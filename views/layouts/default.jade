@@ -1,34 +1,34 @@
 doctype html
 html
-	head
-		title= title
-		meta(charset="utf-8")
-		meta(name="viewport", content="width=device-width, initial-scale=1.0")
-		meta(name="author", content="Imam Hidayat")
+   head
+      title= title
+      meta(charset="utf-8")
+      meta(name="viewport", content="width=device-width, initial-scale=1.0")
+      meta(name="author", content="Imam Hidayat")
 
-		link(rel='stylesheet', type='text/css', href='/components/bootstrap/dist/css/bootstrap.min.css')
-		link(rel='stylesheet', type='text/css', href='/css/styles.css')
+      link(rel='stylesheet', type='text/css', href='/components/bootstrap/dist/css/bootstrap.min.css')
+      link(rel='stylesheet', type='text/css', href='/css/styles.css')
 
 body
-	if (typeof current.user != "undefined")
-		include ../elements/navigation/user
-	else
-		include ../elements/navigation/site
-	
-	if (typeof flashMessages != "undefined")
-		.container
-			.col-md-12
-				each flashMessage in flashMessages
-					.alert(class='alert-#{flashMessage.type}')
-						p #{flashMessage.message}
+   if (typeof current.user != "undefined")
+      include ../elements/navigation/user
+   else
+      include ../elements/navigation/site
+   
+   if (typeof flashMessages != "undefined")
+      .container
+         .col-md-12
+            each flashMessage in flashMessages
+               .alert(class='alert-#{flashMessage.type}')
+                  p #{flashMessage.message}
 
-	block content
-	
-	include ../elements/footer
+   block content
+   
+   include ../elements/footer
 
-	script(src='/components/react/JSXTransformer.js')
-	script(src='/components/react/react.min.js')
-	script(src='/components/jquery/dist/jquery.min.js')
-	script(src='/components/underscore/underscore-min.js')
-	script(src='/components/bootstrap/dist/js/bootstrap.min.js')
-	block scripts
+   script(src='/components/react/JSXTransformer.js')
+   script(src='/components/react/react.min.js')
+   script(src='/components/jquery/dist/jquery.min.js')
+   script(src='/components/underscore/underscore-min.js')
+   script(src='/components/bootstrap/dist/js/bootstrap.min.js')
+   block scripts

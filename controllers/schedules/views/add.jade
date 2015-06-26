@@ -1,45 +1,45 @@
 extends ../../../views/layouts/default
 
 block content
-	.container
-		.row
-			.col-md-12
-				.page-header
-					h1 Add New Schedule
+   .container
+      .row
+         .col-md-12
+            .page-header
+               h1 Add New Schedule
 
-		.row
-			.col-md-4.col-md-offset-4
-				form(method='post', action='/schedules/add')
-					.form-group
-						label Day
-						select.form-control(name='day_code')
-							option(value="1") Senin
-							option(value="2") Selasa
-							option(value="3") Rabu
-							option(value="4") Kamis
-							option(value="5") Jum'at
-							option(value="6") Sabtu
-					.form-group
-						label Start Time
-						input.form-control(name='start_time')
-					.form-group
-						label End Time
-						input.form-control(name='end_time')
+      .row
+         .col-md-4.col-md-offset-4
+            form(method='post', action='/schedules/add')
+               .form-group
+                  label Day
+                  select.form-control(name='day_code')
+                     option(value="1") Senin
+                     option(value="2") Selasa
+                     option(value="3") Rabu
+                     option(value="4") Kamis
+                     option(value="5") Jum'at
+                     option(value="6") Sabtu
+               .form-group
+                  label Start Time
+                  input.form-control(name='start_time')
+               .form-group
+                  label End Time
+                  input.form-control(name='end_time')
 
-					.form-group
-						label Course
-						select.form-control(name='course')
-							each course in courses
-								option(value="#{course._id}") #{course.name}
-					.form-group
-						label Location
-						select.form-control(name='location')
-							each location in locations
-								option(value="#{location._id}") #{location.name}
-					.form-group
-						label Lecturer
-						select.form-control(name='lecturer')
-							each user in users
-								option(value="#{user._id}") #{user.display_name}
+               .form-group
+                  label Course
+                  select.form-control(name='course')
+                     each course in courses
+                        option(value="#{course._id}") #{course.name}
+               .form-group
+                  label Location
+                  select.form-control(name='location')
+                     each location in locations
+                        option(value="#{location._id}") #{location.name}
+               .form-group
+                  label Lecturer
+                  select.form-control(name='lecturer')
+                     each user in users
+                        option(value="#{user._id}") #{user.display_name}
 
-					input.btn.btn-success.btn-block(type='submit', value='Add New Schedule')
+               input.btn.btn-success.btn-block(type='submit', value='Add New Schedule')

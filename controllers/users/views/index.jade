@@ -1,39 +1,39 @@
 extends ../../../views/layouts/default
 
 block content
-	.container
-		.row
-			.col-md-12
-				.page-header
-					h1 Index of User
-		.row
-			.col-md-2.col-md-offset-10
-				a.btn.btn-block.btn-success(href='/users/add') Add New User
-		.row
-			.col-md-12
-				table.table
-					thead
-						th
-							p Name
-						th
-							p E-mail
-						th
-							p Role
-						th
-							p Action
-					tbody
-						each user in users
-							td
-								user.name
-							td
-								user.email
-							td
-								if (user.role == 'administrator')
-									span.label.label-danger Administrator
-								if (user.role == 'lecturer')
-									span.label.label-warning Lecturer
-								if (user.role == 'student')
-									span.label.label-success Student
-								if (user.role == 'staff')
-									span.label.label-default Staff
-							td
+   .container
+      .row
+         .col-md-12
+            .page-header
+               h1 Index of User
+      .row
+         .col-md-2.col-md-offset-10
+            a.btn.btn-block.btn-success(href='/users/add') Add New User
+      .row
+         .col-md-12
+            table.table
+               thead
+                  th
+                     p Name
+                  th
+                     p E-mail
+                  th
+                     p Role
+                  th
+                     p Action
+               tbody
+                  each user in users
+                     td
+                        user.name
+                     td
+                        user.email
+                     td
+                        if (user.role == 'administrator')
+                           span.label.label-danger Administrator
+                        if (user.role == 'lecturer')
+                           span.label.label-warning Lecturer
+                        if (user.role == 'student')
+                           span.label.label-success Student
+                        if (user.role == 'staff')
+                           span.label.label-default Staff
+                     td

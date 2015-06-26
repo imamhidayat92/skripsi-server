@@ -1,17 +1,17 @@
 /* Overridden Bootstrap Styles */
 
 .btn, .label, .form-control {
-    border-radius: 0;
+   border-radius: 0;
 }
 
 /* Main Styles */
 
 div.footer {
-	margin: 40px 0 0 0;
-	padding: 10px 0 10px 0;
-	border-top: solid 1px #ebebeb;
+   margin: 40px 0 0 0;
+   padding: 10px 0 10px 0;
+   border-top: solid 1px #ebebeb;
 }
 
 .btn-top-action {
-	margin-top: 20px;
+   margin-top: 20px;
 }

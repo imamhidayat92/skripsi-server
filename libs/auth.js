@@ -1,15 +1,15 @@
 var auth = function() {
-   var   
+   var
       _     = require('underscore'),
       passport = require('passport')
       ;
 
-   var 
+   var
       utils   = require('../libs/utils')(),
       API      = utils.API
       ;
 
-   var 
+   var
       obj = {}
       ;
 
@@ -34,7 +34,7 @@ var auth = function() {
             else {
                if (authenticateError) { return next(authenticateError); }
                if (!user) { return res.redirect('/users/login'); }
-               
+
                req.logIn(user, function(err) {
                   if (err) { return next(err); }
                   return next();
