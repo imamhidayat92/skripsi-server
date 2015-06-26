@@ -1,5 +1,5 @@
 var controller = function(args) {
-   var   
+   var
       _        = require('underscore'),
       async    = require('async'),
       passport = require('passport'),
@@ -7,14 +7,14 @@ var controller = function(args) {
       ObjectId = mongoose.Types.ObjectId
       ;
 
-   var   
+   var
       ClassMeeting   = require('../../models/ClassMeetingSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
       User           = require('../../models/UserSchema')
       ;
 
-   var 
+   var
       auth     = require('../../libs/auth')(),
       utils    = require('../../libs/utils')(),
       API      = utils.API,
@@ -34,12 +34,12 @@ var controller = function(args) {
          handler  : function(req, res, next) {
             var conditions = {
                $and: [
-                  
+
                ]
             };
-            
+
             var orConditions = [];
-            
+
             async.parallel(
                [
                   function(callback) {
@@ -51,12 +51,12 @@ var controller = function(args) {
                      .count(callback);
                   },
                   function(callback) {
-                     
+
                   }
                ],
                function(asyncError, results) {
                   if (asyncError) {
-                     return API.error.json(res, asyncError);   
+                     return API.error.json(res, asyncError);
                   }
                   else {
                      var classMeetings = results[0];
@@ -78,7 +78,7 @@ var controller = function(args) {
                'schedule': ObjectId(req.body.schedule),
                'created': new Date().toISOString()
             };
-            
+
             ClassMeeting.find(existConditions)
             .exec(function(findError, existingClassMeetings) {
                if (findError) {
@@ -113,7 +113,7 @@ var controller = function(args) {
                         else {
                            return API.success.json(res, classMeeting);
                         }
-                     });      
+                     });
                   }
                }
             });
@@ -158,20 +158,25 @@ var controller = function(args) {
                   return API.error.json(res, findError);
                }
                else {
-                  _.each(req.body, function(v, k) {
-                     classMeeting[k] = v;
-                  });
-                  
-                  classMeeting.modified = new Date();
-                  
-                  classMeeting.save(function(saveError, savedClassMeeting) {
-                     if (saveError) {
-                        return API.error.json(res, saveError);
-                     }
-                     else {
-                        return API.success.json(res, savedClassMeeting);
-                     }
-                  });
+                  if (!classMeeting) {
+                     return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan kelas yang dimaksud.');
+                  }
+                  else {
+                     _.each(req.body, function(v, k) {
+                        classMeeting[k] = v;
+                     });
+
+                     classMeeting.modified = new Date();
+
+                     classMeeting.save(function(saveError, savedClassMeeting) {
+                        if (saveError) {
+                           return API.error.json(res, saveError);
+                        }
+                        else {
+                           return API.success.json(res, savedClassMeeting);
+                        }
+                     });
+                  }
                }
             });
          }
@@ -184,6 +189,7 @@ var controller = function(args) {
          /*
             spec: {
                identifier: String,
+
             }
          */
          path  : '/:id/attendances',
@@ -218,19 +224,21 @@ var controller = function(args) {
                               else {
                                  /* Compose attendance data. */
                                  var attendance = new Attendance();
-                                 
+
                                  attendance.class_meeting = classMeeting._id;
-                                 attendance.student = user._id;
+                                 attendance.course = '';
                                  attendance.schedule = classMeeting.schedule;
-                                 
+                                 attendance.student = user._id;
+
                                  attendance.created = new Date();
                                  attendance.modified = new Date();
-                                 
+
                                  attendance.save(function(saveError, attendance) {
                                     if (saveError) {
                                        return API.error.json(res, saveError)
                                     }
                                     else {
+                                       /* Update Cache */
                                        classMeeting.attendances.push(attendance._id);
                                        classMeeting.save(function(saveError, classMeeting) {
                                           if (saveError) {
@@ -240,7 +248,7 @@ var controller = function(args) {
                                              Logger.printMessage('New attendance data inserted successfully.');
                                           }
                                        });
-                                       
+
                                        return API.success.json(res, user);
                                     }
                                  });
@@ -254,7 +262,7 @@ var controller = function(args) {
          }
       }
    ];
-   
+
    actions.api_details_teaching_reports = [
       {
          path  : '/:id/teaching_reports',
@@ -270,17 +278,17 @@ var controller = function(args) {
                }
                else {
                   if (classMeesting.report) {
-                     return API.invalid.json(err, 'Laporan mengajar telah dibuat sebelumnya.'); 
+                     return API.invalid.json(err, 'Laporan mengajar telah dibuat sebelumnya.');
                   }
                   else {
                      var report = new TeachingReport();
-                     
+
                      _.each(req.body, function(v, k) {
                         report[k] = v;
                      });
-                     
+
                      report.created = new Date();
-                     
+
                      report.save(function(saveError, report) {
                         if (saveError) {
                            Logger.printError(saveError);

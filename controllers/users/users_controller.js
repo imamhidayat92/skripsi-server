@@ -262,7 +262,7 @@ var controller = function(args) {
       }
    };
     
-   /* API Functions */
+   /* API Actions */
 
    actions.api_index = [
       {
@@ -271,7 +271,21 @@ var controller = function(args) {
          method   : 'get',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
-            User.find().exec(function(findError, users) {
+            var findParams = req.body;
+            
+            var conditions = {};
+            var $andConditions = [];
+            var $orConditions = [];
+            
+            if ($andConditions.length > 0) {
+               conditions['$and'] = $andConditions;
+            }
+            
+            if ($orConditions.length > 0) {
+               conditions['$or'] = $orConditions;
+            }
+            
+            User.find(conditions).exec(function(findError, users) {
                if (findError) {
                   return res.status(500).json({
                      success: false,

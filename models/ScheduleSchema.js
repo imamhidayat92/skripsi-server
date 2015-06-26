@@ -12,6 +12,7 @@ var scheduleSchema = new Schema({
    lecturer    :  {type: ObjectId, ref: 'User'},
    location    :  {type: ObjectId, ref: 'ClassLocation'},
 
+   /* Cache */
    enrollments :  [{type: ObjectId, ref: 'Enrollment'}],
    meetings    :  [{type: ObjectId, ref: 'ClassMeeting'}],
 

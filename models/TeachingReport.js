@@ -11,6 +11,9 @@ var teachingReportSchema = new Schema({
    course        :   {type: ObjectId, ref: 'Course'},
    lecturer      :   {type: ObjectId, ref: 'User'},
 
+   /* Cache */
+   attendances   :   [{type: ObjectId, ref: 'Attendance'}]
+   
    created       :   Date,
    modified      :   {type: Date, default: new Date()}
 }, {collection: 'teaching_reports'});

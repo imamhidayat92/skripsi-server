@@ -8,8 +8,8 @@ var attendanceSchema = new Schema({
    remarks        :  {type: String},
 
    class_meeting  :  {type: ObjectId, ref: 'ClassMeeting'},
-   student        :  {type: ObjectId, ref: 'User'},
    schedule       :  {type: ObjectId, ref: 'Schedule'},
+   student        :  {type: ObjectId, ref: 'User',
 
    created        :  Date,
    modified       :  {type: Date, default: new Date()}

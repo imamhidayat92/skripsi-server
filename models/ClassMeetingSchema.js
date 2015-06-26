@@ -12,6 +12,7 @@ var classMeetingSchema = new Schema({
    report      :  {type: ObjectId, ref: 'Report'},
    schedule    :  {type: ObjectId, ref: 'Schedule'},
 
+   /* Cache */
    attendances :  [{type: ObjectId, ref: 'Attendance'}],
 
    created     :  Date,

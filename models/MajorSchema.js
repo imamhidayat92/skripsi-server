@@ -8,6 +8,7 @@ var majorSchema = new Schema({
    color       :  String,
    description :  String,
 
+   /* Cache */
    students    :  {type: ObjectId, ref: 'User'}
 }, {collection: 'majors'});
 

@@ -6,9 +6,9 @@ module.exports = function() {
    /* Standard API Utility */
    var APIUtility = {};
    var LoggerUtility = {};
-   
+
    /* API Helper Utility */
-   
+
    APIUtility.error = {
       json: function(res, errorObject, message, errorInfo) {
 
@@ -82,24 +82,33 @@ module.exports = function() {
    };
 
    /* Logger Helper Utility */
-   
+
    LoggerUtility.printError = function(error) {
-      console.log('-- Error');
+      var now = new Date();
+      var strNow = now.toISOString();
+
+      console.log('[' + strNow + '] Error!');
       console.log(error);
    };
-   
+
    LoggerUtility.printMessage = function(message) {
-      console.log('-- ' + message);
+      var now = new Date();
+      var strNow = now.toISOString();
+
+      console.log('[' + strNow + '] ' + message);
    };
-   
+
    LoggerUtility.printMessages = function(messages) {
+      var now = new Date();
+      var strNow = now.toISOString();
+
       for (var i in messages) {
-         console.log('-- ' + messages[i]);   
+         console.log('-- ' + messages[i]);
       };
    };
-   
+
    /* Misc. */
-   
+
    var getFlashMessages = function(req, res, next) {
       var flashMessages = [];
       var flashTypes = ['danger', 'info', 'success', 'warning'];
@@ -111,9 +120,9 @@ module.exports = function() {
                type: type,
                message: message[0]
             });
-         }  
+         }
       }
-      
+
       return flashMessages;
    };
 

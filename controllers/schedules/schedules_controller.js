@@ -1,21 +1,26 @@
 var controller = function(args) {
-   var   _        = require('underscore'),
+   var
+      _        = require('underscore'),
       async       = require('async'),
       mongoose = require('mongoose'),
       ObjectId = mongoose.Types.ObjectId,
       passport = require('passport')
       ;
 
-   var   ClassLocation  = require('../../models/ClassLocationSchema'),
+   var
+      ClassLocation  = require('../../models/ClassLocationSchema'),
+      ClassMeeting   = require('../../models/ClassMeetingSchema'),
       Course         = require('../../models/CourseSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
-      User        = require('../../models/UserSchema')
+      User           = require('../../models/UserSchema')
       ;
 
-   var auth       = require('../../libs/auth')(),
+   var
+      auth    = require('../../libs/auth')(),
       utils    = require('../../libs/utils')(),
-      API      = utils.API
+      API      = utils.API,
+      Logger   = utils.Logger
       ;
 
    var actions = {};
@@ -115,7 +120,7 @@ var controller = function(args) {
             .exec(function(findError, schedules) {
                if (findError) {
                   return API.error.json(res, findError);
-               }  
+               }
                else {
                   var populates = [
                      {path: 'course.major', model: 'Major'}
@@ -165,9 +170,9 @@ var controller = function(args) {
    actions.api_detail = [
       {
          prefix   : 'api',
-         path  : '/:id',
+         path     : '/:id',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             Schedule.findOne({
                "_id": ObjectId(req.params.id)
@@ -189,16 +194,113 @@ var controller = function(args) {
       }
    ];
 
+   actions.api_detail_class_meetings = [
+      {
+         prefix   : 'api',
+         path     : '/:id/class_meetings',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            if (typeof req.query._useCache != 'undefined' && req.query.useCache) {
+
+            }
+            else {
+
+            }
+         }
+      },
+      {
+         prefix   : 'api',
+         path     : '/:id/class_meetings',
+         method   : 'post',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            var classMeeting = new ClassMeeting();
+
+            _.each(req.body, function(v, k) {
+               classMeeting[k] = v;
+            });
+
+            classMeeting.save(function(saveError, classMeeting) {
+               if (saveError) {
+                  return API.error.json(res, saveError);
+               }
+               else {
+                  Schedule.findOne({'_id': ObjectId(req.params.id)})
+                  .exec(function(findError, schedule) {
+                     if (findError) {
+
+                     }
+                     else {
+                        /* Update Cache */
+                        schedule.class_meetings.push(classMeeting._id);
+
+                        schedule.save(function(saveError, schedule) {
+                           if (saveError) {
+                              Logger.printError(saveError);
+                           }
+                           else {
+                              Logger.printMessage('Cache update for schedule.id == ' + schedule._id);
+                           }
+                        });
+                     }
+                  });
+
+                  return API.success.json(res, classMeeting);
+               }
+            });
+         }
+      },
+      {
+         prefix   : 'api',
+         path     : '/:id/class_meetings',
+         method   : 'update',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
+            .exec(function(findError, classMeeting) {
+               if (findError) {
+                  return API.error.json(res, saveError);
+               }
+               else {
+                  if (!classMeeting) {
+                     return API.invalid.json(res, 'Tidak dapat menemukan data jadwal yang dimaksud');
+                  }
+                  else {
+                     var excludedFields = ['_id', 'attendances'];
+                     for (var i = 0; i < excludedFields; i++) {
+                        delete req.body[excludedFields[i]];
+                     }
+
+                     _.each(req.body, function(v, k) {
+                        classMeeting[k] = v;
+                     });
+
+                     classMeeting.save(function(saveError, classMeeting) {
+                        if (saveError) {
+                           return API.error.json(res, saveError);
+                        }
+                        else {
+                           return API.success.json(res, classMeeting);
+                        }
+                     });
+                  }
+               }
+            });
+         }
+      }
+   ];
+
    actions.api_detail_majors = [
-      
+
    ];
 
    actions.api_detail_students = [
       {
          prefix   : 'api',
-         path  : '/:id/students',
+         path     : '/:id/students',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             Schedule.select('students')
             .populate('students')
@@ -216,7 +318,7 @@ var controller = function(args) {
          prefix   : 'api',
          path  : '/:id/students',
          method   : 'post',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             Schedule.findOne({"_id": ObjectId()})
             .exec(function(findError, schedule) {
