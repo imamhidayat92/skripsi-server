@@ -4,7 +4,11 @@ module.exports = {
    app: {
       name: 'Skripsi Server',
       port: 2014,
-      base_path: require('path').normalize(__dirname)
+      base_path: require('path').normalize(__dirname),
+
+      pagination: {
+         limit: 25
+      }
    },
    mongodb: {
       host: '127.0.0.1',

@@ -9,7 +9,9 @@ var majorSchema = new Schema({
    description :  String,
 
    /* Cache */
-   students    :  {type: ObjectId, ref: 'User'}
+   students    :  [{type: ObjectId, ref: 'User'}],
+   courses     :  [{type: ObjectId, ref: 'Course'}]
+
 }, {collection: 'majors'});
 
 module.exports = mongoose.model('Major', majorSchema);

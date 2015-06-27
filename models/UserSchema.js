@@ -1,7 +1,8 @@
-var   mongoose = require('mongoose'),
-   Schema      = mongoose.Schema,
-   ObjectId = Schema.ObjectId,
-   crypto      = require('crypto')
+var
+   mongoose = require('mongoose'),
+   crypto   = require('crypto'),
+   Schema   = mongoose.Schema,
+   ObjectId = Schema.ObjectId
    ;
 
 var userSchema = new Schema({
@@ -14,11 +15,11 @@ var userSchema = new Schema({
 
    hashed_password   :  String,
    role              :  {type: String, lowercase: true, enum:['administrator', 'lecturer', 'student', 'staff']},
-   avatar            :  String,
+   display_picture   :  String,
 
    identifier        :  {type: String, trim: true, index: {sparse: true}},
    id_number         :  {type: String, trim: true, index: {sparse: true}},
-   
+
    major             :  {type: ObjectId, ref: 'Major'},
 
    /* For students: */
@@ -48,8 +49,8 @@ userSchema.virtual('password')
    this.hashed_password = this.encryptPassword(password);
    this.token = this.generateToken();
 })
-.get(function() { 
-   return this._password 
+.get(function() {
+   return this._password
 });
 
 userSchema.methods = {

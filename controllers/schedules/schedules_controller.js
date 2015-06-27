@@ -102,7 +102,7 @@ var controller = function(args) {
       }
    ];
 
-   /* API Functions */
+   /* API Actions */
 
    actions.api_index = [
       {
@@ -111,10 +111,16 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            Schedule.find({
-               "day_code": new Date().getDay(),
-               "lecturer": ObjectId(req.user._id)
-            })
+            var conditions = {
+               'day_code': new Date().getDay(),
+               'lecturer': ObjectId(req.user._id)
+            };
+
+            if (typeof req.params._all != 'undefined' && req.params._all) {
+               conditions = {};
+            }
+
+            Schedule.find(conditions)
             .populate('course')
             .populate('location')
             .exec(function(findError, schedules) {
@@ -140,7 +146,7 @@ var controller = function(args) {
       },
       {
          prefix   : 'api',
-         path  : '/',
+         path     : '/',
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
@@ -161,7 +167,7 @@ var controller = function(args) {
                });
             }
             else {
-               return API.forbidden(res, "Anda tidak diizinkan untuk mengakses aksi ini.");
+               return API.forbidden.json(res, 'Anda tidak diizinkan untuk mengakses sumber daya ini.');
             }
          }
       },
@@ -201,12 +207,38 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
+            var query = Schedule.findOne({'_id': ObjectId(req.params.id)});
+
             if (typeof req.query._useCache != 'undefined' && req.query.useCache) {
-
+               query.populate('class_meetings');
             }
-            else {
 
-            }
+            query.exec(function(findError, schedule) {
+               if (findError) {
+                  return API.error.json(res, findError);
+               }
+               else {
+                  if (!schedule) {
+                     return API.invalid.json(res, 'Tidak dapat menemukan data jadwal ini.');
+                  }
+                  else {
+                     if (typeof req.query._useCache != 'undefined' && req.query.useCache) {
+                        return API.success.json(res, schedule.class_meetings);
+                     }
+                     else {
+                        ClassMeeting.find({'schedule': ObjectId(req.params.id)})
+                        .exec(function(findError, classMeetings) {
+                           if (findError) {
+                              return API.error.json(res, findError);
+                           }
+                           else {
+                              return API.success.json(res, classMeetings);
+                           }
+                        });
+                     }
+                  }
+               }
+            });
          }
       },
       {
@@ -240,7 +272,7 @@ var controller = function(args) {
                               Logger.printError(saveError);
                            }
                            else {
-                              Logger.printMessage('Cache update for schedule.id == ' + schedule._id);
+                              Logger.printMessage('Cache updated for schedule.id == ' + schedule._id);
                            }
                         });
                      }
@@ -254,7 +286,7 @@ var controller = function(args) {
       {
          prefix   : 'api',
          path     : '/:id/class_meetings',
-         method   : 'update',
+         method   : 'put',
          before   : auth.check,
          handler  : function(req, res, next) {
             ClassMeeting.findOne({'_id': ObjectId(req.params.id)})

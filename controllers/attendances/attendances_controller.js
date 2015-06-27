@@ -3,9 +3,20 @@ var controller = function(args) {
 
    var actions = {};
 
-   actions.index = {
+   var
+      auth     = require('../../libs/auth')(),
+      utils    = require('../../libs/utils')(),
+      API      = utils.API,
+      Logger   = utils.Logger
+      ;
+
+   /* API Actions */
+
+   actions.api_index = {
       method  : 'get',
+      prefix  : 'api',
       path    : '',
+      before  : auth.check,
       handler : function(req, res, next) {
          var conditions = {
             $and: []
@@ -44,11 +55,12 @@ var controller = function(args) {
       }
    };
 
-   actions.detail = [
+   actions.api_detail = [
       {
          method  : 'get',
+         prefix  : 'api',
          path    : '/:id',
-         before  : auth.check
+         before  : auth.check,
          handler : function(req, res, next) {
             Attendance.findOne({'_id': ObjectId(req.params.id)})
             .populate('class_meeting')
@@ -65,9 +77,10 @@ var controller = function(args) {
          }
       },
       {
-         method  : 'update',
+         method  : 'put',
+         prefix  : 'api',
          path    : '/:id',
-         before  : auth.check
+         before  : auth.check,
          handler : function(req, res, next) {
             Attendance.findOne({'_id': ObjectId(req.params.id)})
             .exec(function(findError, attendance) {

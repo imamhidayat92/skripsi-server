@@ -33,7 +33,7 @@ var controller = function(args) {
                   function(callback) {
                      Major.find().exec(callback);
                   }
-               ], 
+               ],
                function(asyncError, results) {
                   res.render('add', {
                      title: 'Add New User',
@@ -67,9 +67,9 @@ var controller = function(args) {
          }
       }
    ];
-   
+
    actions.dashboard = {
-      path  : '/dashboard',
+      path     : '/dashboard',
       method   : 'get',
       before   : auth.check,
       handler  : function(req, res, next) {
@@ -81,7 +81,7 @@ var controller = function(args) {
 
    actions.detail_enrollments = [
       {
-         path  : '/:id/enrollments',
+         path     : '/:id/enrollments',
          method   : 'get',
          handler  : function(req, res, next) {
 
@@ -136,11 +136,11 @@ var controller = function(args) {
                      });
                   }
                }
-            );       
+            );
          }
       },
       {
-         path  : '/:id/enrollments/add',
+         path     : '/:id/enrollments/add',
          method   : 'post',
          handler  : function(req, res, next) {
             Schedule.findOne({"_id": ObjectId(req.body.schedule)})
@@ -182,10 +182,10 @@ var controller = function(args) {
          }
       }
    ];
-   
+
    actions.index = [
       {
-         path  : '/',
+         path     : '/',
          method   : 'get',
          handler  : function(req, res, next) {
             User.find()
@@ -205,8 +205,8 @@ var controller = function(args) {
    ];
 
     actions.login = [
-        {
-            path  : '/login',
+      {
+         path  : '/login',
          method   : 'get',
          handler  : function(req, res, next) {
                 if (req.isAuthenticated()) {
@@ -216,19 +216,19 @@ var controller = function(args) {
                return res.status(200).render('login', {
                   title: 'Login',
                   flashMessages: utils.getFlashMessages(req, res, next)
-               });   
+               });
             }
-            }
-        },
-        {
-            path  : '/login',
+         }
+      },
+      {
+         path     : '/login',
          method   : 'post',
          handler  : function(req, res, next) {
             passport.authenticate('local', function(err, user, info) {
                if (err) {
                   console.log(err);
                   next(err);
-               } 
+               }
                else {
                   if (!user) {
                      req.flash('danger', 'Wrong username or password.');
@@ -239,7 +239,7 @@ var controller = function(args) {
                         if (logInError) {
                            console.log(logInError);
                            req.flash('danger', 'Login failed.');
-                           next(logInError);       
+                           next(logInError);
                         }
                         else {
                            return res.redirect('/users/dashboard');
@@ -250,9 +250,9 @@ var controller = function(args) {
                }
             })(req, res, next);
          }
-        }
+      }
     ];
-   
+
    actions.logout = {
       path  : '/logout',
       method   : 'get',
@@ -261,30 +261,30 @@ var controller = function(args) {
          return res.redirect('/');
       }
    };
-    
+
    /* API Actions */
 
    actions.api_index = [
       {
-         path  : '/',
+         path     : '/',
          prefix   : 'api',
          method   : 'get',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
             var findParams = req.body;
-            
+
             var conditions = {};
             var $andConditions = [];
             var $orConditions = [];
-            
+
             if ($andConditions.length > 0) {
                conditions['$and'] = $andConditions;
             }
-            
+
             if ($orConditions.length > 0) {
                conditions['$or'] = $orConditions;
             }
-            
+
             User.find(conditions).exec(function(findError, users) {
                if (findError) {
                   return res.status(500).json({
@@ -307,18 +307,18 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/',
+         path     : '/',
          prefix   : 'api',
          method   : 'post',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
-            
+
          }
       }
    ];
 
    actions.api_authentication = {
-      path  : '/authentication',
+      path     : '/authentication',
       prefix   : 'api',
       method   : 'post',
       handler  : function(req, res, next) {
@@ -369,7 +369,7 @@ var controller = function(args) {
    };
 
    actions.api_current = {
-      path  : '/current',
+      path     : '/current',
       prefix   : 'api',
       method   : 'get',
       before   : auth.check,
@@ -397,7 +397,7 @@ var controller = function(args) {
                         message: "Invalid credentials."
                      });
                   }
-               }           
+               }
             });
          }
          else {
@@ -405,12 +405,12 @@ var controller = function(args) {
                success: false,
                message: "Invalid request."
             });
-         }        
+         }
       }
    };
 
    actions.api_identity = {
-      path  : '/identity',
+      path     : '/identity',
       prefix   : 'api',
       method   : 'post',
       before   : auth.check,
@@ -435,7 +435,7 @@ var controller = function(args) {
 
    actions.api_details = [
       {
-         path  : '/:id',
+         path     : '/:id',
          prefix   : 'api',
          method   : 'get',
          before   : auth.check,
@@ -479,7 +479,7 @@ var controller = function(args) {
 
    actions.api_user_enrollments = [
       {
-         path  : '/:id/enrollments',
+         path     : '/:id/enrollments',
          prefix   : 'api',
          method   : 'get',
          before   : passport.authenticate('bearer', { session: false }),
@@ -497,19 +497,19 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/:id/enrollments',
+         path     : '/:id/enrollments',
          prefix   : 'api',
          method   : 'post',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
-            
+
          }
       }
    ];
 
    actions.api_user_schedules = [
       {
-         path  : '/:id/schedules',
+         path     : '/:id/schedules',
          prefix   : 'api',
          method   : 'get',
          before   : passport.authenticate('bearer', { session: false }),
@@ -538,17 +538,17 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/:id/schedules',
+         path     : '/:id/schedules',
          prefix   : 'api',
          method   : 'post',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
-            
+
          }
       }
    ];
 
    return actions;
-} 
+}
 
 module.exports = controller;

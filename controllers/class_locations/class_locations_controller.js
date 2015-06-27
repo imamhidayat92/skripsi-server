@@ -1,18 +1,21 @@
 var controller = function(args) {
-   var   _     = require('underscore'),
+   var
+      _     = require('underscore'),
       async    = require('async'),
       passport = require('passport'),
       mongoose = require('mongoose'),
       ObjectId = mongoose.Types.ObjectId
       ;
 
-   var   ClassLocation  = require('../../models/ClassLocationSchema'),
+   var
+      ClassLocation  = require('../../models/ClassLocationSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
       User        = require('../../models/UserSchema')
       ;
 
-   var auth       = require('../../libs/auth')(),
+   var
+      auth       = require('../../libs/auth')(),
       utils    = require('../../libs/utils')(),
       API      = utils.API
       ;
@@ -63,8 +66,22 @@ var controller = function(args) {
 
    /* API Functions */
 
-   
-   
+   actions.api_index = {
+      path  : '/',
+      method   : 'get',
+      handler  : function(req, res, next) {
+         ClassLocation.find()
+         .exec(function(findError, classLocations) {
+            if (findError) {
+               return API.error.json(res, findError);
+            }
+            else {
+               return API.success.json(res, classLocations);
+            }
+         });
+      }
+   };
+
    return actions;
 };
 

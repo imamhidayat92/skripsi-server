@@ -50,7 +50,7 @@ module.exports = function() {
    };
 
    APIUtility.success = {
-      json: function(res, responseObject, message) {
+      json: function(res, responseObject, message, additionalData) {
          var returnedObject = {
             success: true
          };
@@ -64,6 +64,10 @@ module.exports = function() {
          }
          else {
             returnedObject.result = responseObject;
+         }
+
+         for (var i in additionalData) {
+            returnedObject[i] = additionalData[i];
          }
 
          return res.status(200).json(returnedObject);

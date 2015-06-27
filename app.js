@@ -2,7 +2,8 @@ console.log();
 console.log('Script executed at ' + (new Date()));
 console.log();
 
-var express       = require('express'),
+var
+   express        = require('express'),
    session        = require('express-session'),
    bodyParser     = require('body-parser'),
    cookieParser   = require('cookie-parser'),
@@ -13,9 +14,11 @@ var express       = require('express'),
    redis          = require('redis'),
    RedisStore     = require('connect-redis')(session),
    passport       = require('passport'),
-   
+
    /* Main Server App Object */
    app            = express(),
+   server         = require('http').Server(app),
+   io             = require('socket.io')(server),
 
    // Passport Strategy
    BearerStrategy = require('passport-http-bearer').Strategy,
@@ -120,7 +123,6 @@ passport.deserializeUser(function(id, done) {
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 /* Minify output. */
 app.use(compression());
 
@@ -133,8 +135,9 @@ app.use(express.static(__dirname + '/public'));
 /* Set arguments to be bypassed to every controller. */
 var args = {
    auth     : auth,
-   config      : config,
-   pages       : {
+   config   : config,
+   io       : io,
+   pages    : {
       FORBIDDEN            : '../../../views/errors/403',
       INTERNAL_SERVER_ERROR   : '../../../views/errors/5xx',
       NOT_FOUND            : '../../../views/errors/404'
@@ -158,14 +161,20 @@ var initGlobal = function(app) {
       res.locals.helper = {
 
       };
-      
+
       next();
    });
 };
 
 /* Boot up! Set up all controllers. */
-require('./libs/boot')(app, args, { verbose: !module.parent, initGlobal: initGlobal });
+var boot = require('./libs/boot');
+boot(app, args, { verbose: !module.parent, initGlobal: initGlobal });
 initGlobal(app);
+
+/* Initialize socket.io for realtime application. */
+io.on('connection', function(socket) {
+   console.log('New client connected.');
+});
 
 /* Handle internal server error and render a view. */
 app.use(function(err, req, res, next){
@@ -179,12 +188,7 @@ app.use(function(req, res, next){
 });
 
 /* Run! */
-var server = app.listen(config.app.port, function () {
-
-   var host = server.address().address
-   var port = server.address().port
-
-   console.log(config.app.name + ' listening at localhost port ' + port);
+server.listen(config.app.port, function () {
+   console.log(config.app.name + ' listening at localhost port ' + config.app.port);
    console.log();
-
 });

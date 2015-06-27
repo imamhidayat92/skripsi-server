@@ -2,7 +2,6 @@ var controller = function(args) {
    var
       _        = require('underscore'),
       async    = require('async'),
-      passport = require('passport'),
       mongoose = require('mongoose'),
       ObjectId = mongoose.Types.ObjectId
       ;
@@ -16,6 +15,7 @@ var controller = function(args) {
 
    var
       auth     = require('../../libs/auth')(),
+      config   = require('../../config'),
       utils    = require('../../libs/utils')(),
       API      = utils.API,
       Logger   = utils.Logger
@@ -23,11 +23,11 @@ var controller = function(args) {
 
    var actions = {};
 
-   /* API Functions */
+   /* API Actions */
 
    actions.api_index = [
       {
-         path  : '/',
+         path     : '/',
          prefix   : 'api',
          method   : 'get',
          before   : auth.check,
@@ -38,20 +38,25 @@ var controller = function(args) {
                ]
             };
 
+            var criterias = {
+               'created': 'desc'
+            };
+
             var orConditions = [];
+
+            if (typeof req.query._all != 'undefined' && req.query._all) {
+
+            }
+
+            var query = ClassMeeting.find(conditions);
 
             async.parallel(
                [
                   function(callback) {
-                     ClassMeeting.find(conditions)
-                     .exec(callback);
+                     query.exec(callback);
                   },
                   function(callback) {
-                     ClassMeeting.find(conditions)
-                     .count(callback);
-                  },
-                  function(callback) {
-
+                     query.count(callback);
                   }
                ],
                function(asyncError, results) {
@@ -68,7 +73,16 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/',
+         /*
+            This is one of the main entry point for "Record Attendance Data" function.
+            spec: {
+               lecturer: '',
+               course: '',
+               schedule: ''
+            }
+         }
+         */
+         path     : '/',
          prefix   : 'api',
          method   : 'post',
          before   : auth.check,
@@ -88,7 +102,7 @@ var controller = function(args) {
                else {
                   if (existingClassMeetings.length > 0) {
                      /* Assume that the first encountered data is the previously entered data. */
-                     return API.success.json(res, existingClassMeetings[0]);
+                     return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
                   }
                   else {
                      var classMeeting = new ClassMeeting();
@@ -97,11 +111,12 @@ var controller = function(args) {
                         classMeeting[k] = v;
                      });
 
-                     classMeeting.verified = true;
+                     // Always set it to not verified.
+                     classMeeting.verified = false;
 
-                     classMeeting.course = ObjectId(req.body.course._id);
-                     classMeeting.lecturer = ObjectId(req.body.lecturer._id);
-                     classMeeting.schedule = ObjectId(req.body.schedule._id);
+                     classMeeting.course = ObjectId(req.body.course);
+                     classMeeting.lecturer = ObjectId(req.body.lecturer);
+                     classMeeting.schedule = ObjectId(req.body.schedule);
 
                      classMeeting.created = new Date();
                      classMeeting.modified = new Date();
@@ -123,7 +138,7 @@ var controller = function(args) {
 
    actions.api_details = [
       {
-         path  : '/:id',
+         path     : '/:id',
          prefix   : 'api',
          method   : 'get',
          before   : auth.check,
@@ -146,7 +161,7 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/:id',
+         path     : '/:id',
          prefix   : 'api',
          method   : 'put',
          before   : auth.check,
@@ -189,10 +204,9 @@ var controller = function(args) {
          /*
             spec: {
                identifier: String,
-
             }
          */
-         path  : '/:id/attendances',
+         path     : '/:id/attendances',
          prefix   : 'api',
          method   : 'post',
          before   : auth.check,
@@ -264,20 +278,26 @@ var controller = function(args) {
    ];
 
    actions.api_details_teaching_reports = [
+      /*
+         This is main entry point for "Add New Teaching Report" function.
+         spec = {
+
+         }
+      */
       {
-         path  : '/:id/teaching_reports',
+         path     : '/:id/teaching_reports',
          prefix   : 'api',
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
             ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
-            .exec(function(findError, classMeesting) {
+            .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
                   return API.error.json(res, findError);
                }
                else {
-                  if (classMeesting.report) {
+                  if (classMeeting.report) {
                      return API.invalid.json(err, 'Laporan mengajar telah dibuat sebelumnya.');
                   }
                   else {
@@ -287,6 +307,8 @@ var controller = function(args) {
                         report[k] = v;
                      });
 
+                     report.class_meeting = classMeeting._id;
+
                      report.created = new Date();
 
                      report.save(function(saveError, report) {
@@ -295,6 +317,12 @@ var controller = function(args) {
                            return API.error.json(res, saveError);
                         }
                         else {
+                           classMeeting.teaching_report = report._id;
+
+                           classMeeting.save(function(saveError, classMeeting) {
+
+                           });
+
                            return API.success.json(res, report);
                         }
                      });
