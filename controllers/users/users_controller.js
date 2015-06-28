@@ -1,18 +1,21 @@
 var controller = function(args) {
-   var   _        = require('underscore'),
+   var
+      _        = require('underscore'),
       async    = require('async'),
       passport = require('passport'),
       mongoose = require('mongoose'),
       ObjectId = mongoose.Types.ObjectId
       ;
 
-   var   Enrollment  = require('../../models/EnrollmentSchema'),
+   var
+      Enrollment  = require('../../models/EnrollmentSchema'),
       Major       = require('../../models/MajorSchema'),
       Schedule    = require('../../models/ScheduleSchema'),
       User     = require('../../models/UserSchema')
       ;
 
-   var auth       = args.auth,
+   var
+      auth       = args.auth,
       passport    = args.passport,
       pages       = args.pages,
       utils    = args.utils,
@@ -187,6 +190,7 @@ var controller = function(args) {
       {
          path     : '/',
          method   : 'get',
+         before   : auth.check,
          handler  : function(req, res, next) {
             User.find()
             .exec(function(findError, users) {
@@ -254,7 +258,7 @@ var controller = function(args) {
     ];
 
    actions.logout = {
-      path  : '/logout',
+      path     : '/logout',
       method   : 'get',
       handler  : function(req, res, next) {
          req.logout();
@@ -269,7 +273,7 @@ var controller = function(args) {
          path     : '/',
          prefix   : 'api',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             var findParams = req.body;
 

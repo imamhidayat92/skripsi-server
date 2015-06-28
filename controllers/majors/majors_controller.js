@@ -2,17 +2,19 @@ var controller = function(args) {
    var _    = require('underscore')
       ;
 
-   var   Major = require('../../models/MajorSchema')
+   var
+      Major = require('../../models/MajorSchema')
       ;
 
-   var utils      = require('../../libs/utils'),
+   var
+      utils      = require('../../libs/utils'),
       API      = utils.API
       ;
 
    var actions = {};
 
    /* Pages */
-   
+
    actions.add = [
       {
          path  : '/add',
@@ -47,9 +49,9 @@ var controller = function(args) {
          }
       }
    ];
-   
+
    /* API Functions */
-   
+
    actions.api_index = [
       {
          path  : '/',
@@ -85,7 +87,7 @@ var controller = function(args) {
             var major = new Major();
 
             _.map(req.body, function(v, k) {
-               major[k] = v; 
+               major[k] = v;
             });
 
             major.save(function(saveError, savedMajor) {

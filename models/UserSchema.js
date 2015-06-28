@@ -22,13 +22,16 @@ var userSchema = new Schema({
 
    major             :  {type: ObjectId, ref: 'Major'},
 
-   /* For students: */
-   enrollments       :  [{type: ObjectId, ref : 'Schedule'}],
+   /* Cache */
 
-   /* For lecturers: */
+   // For Students
+   attendances       :  [{type: ObjectId, ref : 'Attendance'}],
+   enrollments       :  [{type: ObjectId, ref : 'Enrollment'}],
+
+   // For Lecturers
+   class_meetings    :  [{type: ObjectId, ref : 'ClassMeeting'}],
    schedules         :  [{type: ObjectId, ref : 'Schedule'}],
-
-   attendances       :  [{type: ObjectId, ref: 'Attendance'}],
+   teaching_reports  :  [{type: ObjectId, ref : 'TeachingReport'}],
 
    token             :  String,
 

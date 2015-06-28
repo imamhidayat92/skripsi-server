@@ -1,7 +1,9 @@
 var controller = function(args) {
-   var User       = require('../../models/UserSchema');
+   var
+      User     = require('../../models/UserSchema');
 
-   var auth       = require('../../libs/auth')(),
+   var
+      auth     = require('../../libs/auth')(),
       utils    = require('../../libs/utils')(),
       API      = utils.API
       ;
@@ -50,12 +52,12 @@ var controller = function(args) {
                   user.save(function(saveError, user) {
                      if (saveError) {
                         return API.error.json(res, saveError);
-                     }  
+                     }
                      else {
                         return API.success.json(res, user);
                      }
                   });
-                  
+
                }
             }
          });

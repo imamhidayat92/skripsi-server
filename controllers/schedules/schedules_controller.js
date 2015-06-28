@@ -1,7 +1,7 @@
 var controller = function(args) {
    var
       _        = require('underscore'),
-      async       = require('async'),
+      async    = require('async'),
       mongoose = require('mongoose'),
       ObjectId = mongoose.Types.ObjectId,
       passport = require('passport')
@@ -150,7 +150,7 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
-            if (req.user.role == 'lecturer') {
+            if (req.user.role != 'student') {
                var schedule = new Schedule();
 
                _.each(req.body, function(v, k) {
@@ -162,6 +162,11 @@ var controller = function(args) {
                      return API.error.json(res, saveError);
                   }
                   else {
+                     User.findOne({'_id': ObjectId(req.body.lecturer)})
+                     .exec(function(findError, user) {
+
+                     });
+
                      return API.success.json(res, schedule);
                   }
                });
