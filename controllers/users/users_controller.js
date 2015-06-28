@@ -47,7 +47,7 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/add',
+         path     : '/add',
          method   : 'post',
          handler  : function(req, res, next) {
             var user = new User();
@@ -193,6 +193,7 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             User.find()
+            .populate('major')
             .exec(function(findError, users) {
                if (findError) {
                   // TODO: Render internal server error view.
@@ -204,7 +205,7 @@ var controller = function(args) {
                   });
                }
             });
-            }
+         }
       }
    ];
 

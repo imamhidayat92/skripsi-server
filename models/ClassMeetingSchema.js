@@ -1,4 +1,5 @@
-var   mongoose = require('mongoose'),
+var
+   mongoose = require('mongoose'),
    Schema      = mongoose.Schema,
    ObjectId = Schema.ObjectId
    ;
@@ -6,7 +7,7 @@ var   mongoose = require('mongoose'),
 var classMeetingSchema = new Schema({
    type        :  {type: String, lowercase: true, trim: true, enum:['default', 'general', 'mid-test', 'final-test']},
    verified    :  {type: Boolean, default: false},
-   
+
    course      :  {type: ObjectId, ref: 'Course'},
    lecturer    :  {type: ObjectId, ref: 'User'},
    report      :  {type: ObjectId, ref: 'Report'},

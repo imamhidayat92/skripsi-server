@@ -32,17 +32,30 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            var conditions = {
-               $and: [
+            var conditions = {};
+            var andConditions = [];
+            var orConditions = [];
 
-               ]
-            };
+            for (var k in req.query) {
+               if (!req.query.hasOwnProperty(k)) { continue; }
+               if (k == 'verified') {
+                  andConditions.push({
+                     'verified': req.query[k]
+                  });
+               }
+               if (k == 'course' || k == 'report' || k == 'schedule' || k == 'user') {
+                  var condition = {};
+                  condition[k] = ObjectId(req.query[k]);
+                  andConditions.push(condition);
+               }
+
+            }
 
             var criterias = {
                'created': 'desc'
             };
 
-            var orConditions = [];
+
 
             if (typeof req.query._all != 'undefined' && req.query._all) {
 

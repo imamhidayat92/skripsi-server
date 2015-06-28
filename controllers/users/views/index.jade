@@ -18,22 +18,29 @@ block content
                   th
                      p E-mail
                   th
+                     p Major
+                  th
                      p Role
                   th
                      p Action
                tbody
                   each user in users
-                     td
-                        user.name
-                     td
-                        user.email
-                     td
-                        if (user.role == 'administrator')
-                           span.label.label-danger Administrator
-                        if (user.role == 'lecturer')
-                           span.label.label-warning Lecturer
-                        if (user.role == 'student')
-                           span.label.label-success Student
-                        if (user.role == 'staff')
-                           span.label.label-default Staff
-                     td
+                     tr
+                        td
+                           p #{user.name}
+                        td
+                           code #{user.email}
+                        td
+                           span.label(style='background-color: #{user.major.color}') #{user.major.name}
+                        td
+                           if (user.role == 'administrator')
+                              span.label.label-danger Administrator
+                           if (user.role == 'lecturer')
+                              span.label.label-warning Lecturer
+                           if (user.role == 'student')
+                              span.label.label-success Student
+                           if (user.role == 'staff')
+                              span.label.label-default Staff
+                        td
+                           p(align='center')
+                              em - no action available -
