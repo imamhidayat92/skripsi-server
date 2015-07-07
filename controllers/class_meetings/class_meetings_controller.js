@@ -7,6 +7,7 @@ var controller = function(args) {
       ;
 
    var
+      Attendance     = require('../../models/AttendanceSchema'),
       ClassMeeting   = require('../../models/ClassMeetingSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
@@ -48,17 +49,29 @@ var controller = function(args) {
                   condition[k] = ObjectId(req.query[k]);
                   andConditions.push(condition);
                }
+               if (k == 'created') {
+                  andConditions.push({
+                     '$gt': {
 
+                     }
+                  });
+               }
             }
 
             var criterias = {
                'created': 'desc'
             };
 
-
-
             if (typeof req.query._all != 'undefined' && req.query._all) {
 
+            }
+
+            if (andConditions.length > 0) {
+               conditions['$and'] = andConditions;
+            }
+
+            if (orConditions.length > 0) {
+               conditions['$or'] = orConditions;
             }
 
             var query = ClassMeeting.find(conditions);
@@ -101,9 +114,11 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             /* We need to check, whether the ClassMeeting data has already been created before. */
+            // The question is, how? -_-
             var existConditions = {
+               'course': ObjectId(req.body.course),
                'schedule': ObjectId(req.body.schedule),
-               'created': new Date().toISOString()
+               'lecturer': req.user._id
             };
 
             ClassMeeting.find(existConditions)
@@ -235,7 +250,7 @@ var controller = function(args) {
                      return API.invalid.json(res, "Tidak dapat menemukan data pertemuan kelas.");
                   }
                   else {
-                     User.findOne({"identifier": ObjectId(req.params.identifier)})
+                     User.findOne({'identifier': req.body.identifier})
                      .exec(function(error, user) {
                         if (findError) {
                            return API.error.json(res, findError);

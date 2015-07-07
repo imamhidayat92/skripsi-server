@@ -1,4 +1,5 @@
-var   mongoose = require('mongoose'),
+var
+   mongoose = require('mongoose'),
    Schema      = mongoose.Schema,
    ObjectId = Schema.ObjectId
    ;
@@ -10,7 +11,7 @@ var attendanceSchema = new Schema({
 
    class_meeting  :  {type: ObjectId, ref: 'ClassMeeting'},
    schedule       :  {type: ObjectId, ref: 'Schedule'},
-   student        :  {type: ObjectId, ref: 'User',
+   student        :  {type: ObjectId, ref: 'User'},
 
    created        :  Date,
    modified       :  {type: Date, default: new Date()}

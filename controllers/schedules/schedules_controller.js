@@ -252,38 +252,49 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
-            var classMeeting = new ClassMeeting();
+            /* We need to check, whether the ClassMeeting data has already been created before. */
+            var existConditions = {
+               'schedule': ObjectId(req.params.id),
+               'created': new Date().toISOString()
+            };
 
-            _.each(req.body, function(v, k) {
-               classMeeting[k] = v;
-            });
-
-            classMeeting.save(function(saveError, classMeeting) {
-               if (saveError) {
-                  return API.error.json(res, saveError);
+            ClassMeeting.find(existConditions)
+            .exec(function(findError, existingClassMeetings) {
+               if (findError) {
+                  Logger.printError(findError);
+                  return API.error.json(res, findError);
                }
                else {
-                  Schedule.findOne({'_id': ObjectId(req.params.id)})
-                  .exec(function(findError, schedule) {
-                     if (findError) {
+                  if (existingClassMeetings.length > 0) {
+                     /* Assume that the first encountered data is the previously entered data. */
+                     return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
+                  }
+                  else {
+                     var classMeeting = new ClassMeeting();
 
-                     }
-                     else {
-                        /* Update Cache */
-                        schedule.class_meetings.push(classMeeting._id);
+                     _.each(req.body, function(v, k) {
+                        classMeeting[k] = v;
+                     });
 
-                        schedule.save(function(saveError, schedule) {
-                           if (saveError) {
-                              Logger.printError(saveError);
-                           }
-                           else {
-                              Logger.printMessage('Cache updated for schedule.id == ' + schedule._id);
-                           }
-                        });
-                     }
-                  });
+                     // Always set it to not verified.
+                     classMeeting.verified = false;
 
-                  return API.success.json(res, classMeeting);
+                     classMeeting.course = ObjectId(req.body.course);
+                     classMeeting.lecturer = ObjectId(req.body.lecturer);
+                     classMeeting.schedule = ObjectId(req.body.schedule);
+
+                     classMeeting.created = new Date();
+                     classMeeting.modified = new Date();
+
+                     classMeeting.save(function(saveError, classMeeting) {
+                        if (saveError) {
+                           return API.error.json(res, saveError);
+                        }
+                        else {
+                           return API.success.json(res, classMeeting);
+                        }
+                     });
+                  }
                }
             });
          }

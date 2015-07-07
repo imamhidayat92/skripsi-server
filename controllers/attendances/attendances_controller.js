@@ -96,6 +96,8 @@ var controller = function(args) {
                         attendance[k] = v;
                      });
 
+                     attendance.modified = new Date();
+
                      attendance.save(function(saveError, attendance) {
                         if (saveError) {
                            return API.error.json(res, saveError);

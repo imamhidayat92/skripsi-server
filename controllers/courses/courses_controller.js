@@ -1,5 +1,5 @@
 var controller = function(args) {
-   var   
+   var
       _        = require('underscore'),
       async    = require('async'),
       mongoose = require('mongoose'),
@@ -7,12 +7,12 @@ var controller = function(args) {
       passport = require('passport')
       ;
 
-   var   
+   var
       Course      = require('../../models/CourseSchema'),
       Major       = require('../../models/MajorSchema')
       ;
 
-   var 
+   var
       utils    = args.utils,
       auth     = args.auth,
       API      = utils.API
@@ -94,7 +94,7 @@ var controller = function(args) {
          });
       }
    };
-   
+
    actions.details_class_meetings = [
       {
          path     : '/:id',
@@ -102,7 +102,7 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-         
+
          }
       },
       {
@@ -111,7 +111,7 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-         
+
          }
       }
    ];
@@ -166,13 +166,13 @@ var controller = function(args) {
          }
       }
    ];
-   
+
    actions.index = {
       path  : '',
       method   : 'get',
       before   : auth.check,
       handler  : function(req, res, next) {
-         
+
       }
    };
 
@@ -223,20 +223,23 @@ var controller = function(args) {
    actions.api_detail = [
       {
          prefix   : 'api',
-         path  : '/:id',
+         path     : '/:id',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
-            
+            Course.findOne({'_id': ObjectId(req.params.id)})
+            .exec(function(findError, course) {
+
+            });
          }
       },
       {
          prefix   : 'api',
-         path  : '/:id',
-         method   : 'patch',
+         path     : '/:id',
+         method   : 'put',
          before   : passport.authenticate('bearer', { session: false }),
          handler  : function(req, res, next) {
-            
+
          }
       },
    ];

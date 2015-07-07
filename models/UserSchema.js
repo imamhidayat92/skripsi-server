@@ -39,10 +39,13 @@ var userSchema = new Schema({
    hash              :  String,
 
    activation        :  {
-                        token: String,
-                        created: Date,
-                        expired: Date
-                     }
+                           token: String,
+                           created: Date,
+                           expired: Date
+                        },
+
+   created           :  {type: Date},
+   modified          :  {type: Date}
 }, {collection: 'users'});
 
 userSchema.virtual('password')

@@ -11,8 +11,8 @@ var activitySchema = new Schema({
    extra_data     :  {type: Mixed},
 
    involved_users :  [{type: ObjectId, ref: 'User'}],
-   
-   created        :  Date,
+
+   created        :  Date
 
 }, {collection: 'activities'});
 
