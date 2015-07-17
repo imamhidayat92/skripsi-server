@@ -115,6 +115,9 @@ var controller = function(args) {
          handler  : function(req, res, next) {
             /* We need to check, whether the ClassMeeting data has already been created before. */
             // The question is, how? -_-
+
+            var now = new Date();
+
             var existConditions = {
                'course': ObjectId(req.body.course),
                'schedule': ObjectId(req.body.schedule),
@@ -133,6 +136,10 @@ var controller = function(args) {
                      return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
                   }
                   else {
+                     if (typeof req.body.type == 'undefined') {
+                        
+                     }
+
                      var classMeeting = new ClassMeeting();
 
                      _.each(req.body, function(v, k) {
@@ -239,7 +246,7 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
-            ClassMeeting.findOne({"_id": ObjectId(req.params.id)})
+            ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
             .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
@@ -250,7 +257,17 @@ var controller = function(args) {
                      return API.invalid.json(res, "Tidak dapat menemukan data pertemuan kelas.");
                   }
                   else {
-                     User.findOne({'identifier': req.body.identifier})
+                     var conditions = {};
+                     if (typeof req.body.identifier != 'undefined') {
+                        conditions.identifier = req.body.identifier;
+                     }
+                     else if (typeof req.body.id_number != 'undefined') {
+                        conditions.id_number = req.body.id_number;
+                     }
+                     else {
+                        // TODO: Should return invalid.
+                     }
+                     User.findOne(conditions)
                      .exec(function(error, user) {
                         if (findError) {
                            return API.error.json(res, findError);
@@ -283,7 +300,7 @@ var controller = function(args) {
                                        /* Update Cache */
                                        classMeeting.attendances.push(attendance._id);
                                        classMeeting.save(function(saveError, classMeeting) {
-                                          if (saveError) {
+                                          if (saveError) {f
                                              Logger.printError(saveError);
                                           }
                                           else {
@@ -348,7 +365,20 @@ var controller = function(args) {
                            classMeeting.teaching_report = report._id;
 
                            classMeeting.save(function(saveError, classMeeting) {
+                              if (saveError) {
+                                 Logger.printError(saveError);
+                              }
+                           });
 
+                           // Update Cache
+                           Attendance.find({'class_meeting': classMeeting._id})
+                           .exec(function(findError, attendances) {
+                              if (findError) {
+
+                              }
+                              else {
+
+                              }
                            });
 
                            return API.success.json(res, report);

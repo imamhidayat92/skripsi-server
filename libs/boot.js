@@ -1,7 +1,8 @@
-var express = require('express'),
-    fs      = require('fs'),
-    _       = require('underscore')
-    ;
+var
+   express = require('express'),
+   fs      = require('fs'),
+   _       = require('underscore')
+   ;
 
 module.exports = function(parent, args, payload) {
 
@@ -45,7 +46,7 @@ module.exports = function(parent, args, payload) {
       verbose && console.log('\n  %s:', directoryName);
 
       var controller = require('./../controllers/' + directoryName + '/' + directoryName + '_controller')(args);
-      var name = typeof controller.name == "undefined" ? directoryName : controller.name;
+      var name = typeof controller.name == 'undefined' ? directoryName : controller.name;
 
       var app = express();
       var action;

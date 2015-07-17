@@ -1,21 +1,44 @@
 var controller = function(args) {
-   var async = require('async');
+   var
+      async = require('async');
+
+   var
+      Attendance  = require('../../models/AttendanceSchema');
+
+   var
+      auth        = args.auth,
+      passport    = args.passport,
+      pages       = args.pages,
+      utils       = args.utils,
+      API         = utils.API
+      ;
 
    var actions = {};
 
-   var
-      auth     = require('../../libs/auth')(),
-      utils    = require('../../libs/utils')(),
-      API      = utils.API,
-      Logger   = utils.Logger
-      ;
+   /* Pages */
+
+   actions.index = {
+      path     : '/',
+      method   : 'get',
+      before   : auth.check,
+      handler  : function(req, res, next) {
+         console.log('---');
+         console.log(res.locals);
+         console.log('---');
+
+         return res.status(200).render('index', {
+            title: 'Daftar User',
+            users: []
+         });
+      }
+   };
 
    /* API Actions */
 
    actions.api_index = {
       method  : 'get',
       prefix  : 'api',
-      path    : '',
+      path    : '/',
       before  : auth.check,
       handler : function(req, res, next) {
          var conditions = {
@@ -44,7 +67,7 @@ var controller = function(args) {
             ],
             function(asyncError, results) {
                if (asyncError) {
-                  return API.error(res, 'Gagal mengambil data kehadiran.');
+                  return API.error.json(res, asyncError);
                }
                else {
                   var count = results[0];
@@ -106,6 +129,28 @@ var controller = function(args) {
                            return API.success.json(res, attendance);
                         }
                      });
+                  }
+               }
+            });
+         }
+      },
+      {
+         method  : 'delete',
+         prefix  : 'api',
+         path    : '/:id',
+         before  : auth.check,
+         handler : function(req, res, next) {
+            Attendance.findOne({'_id': ObjectId(req.params.id)})
+            .remove(function(deleteError, attendance) {
+               if (deleteError) {
+                  return API.error.json(res, deleteError);
+               }
+               else {
+                  if (!attendance) {
+                     return API.invalid.json(res, attendance);
+                  }
+                  else {
+                     // TODO: Update cache.
                   }
                }
             });

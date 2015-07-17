@@ -138,9 +138,9 @@ var args = {
    config   : config,
    io       : io,
    pages    : {
-      FORBIDDEN            : '../../../views/errors/403',
+      FORBIDDEN               : '../../../views/errors/403',
       INTERNAL_SERVER_ERROR   : '../../../views/errors/5xx',
-      NOT_FOUND            : '../../../views/errors/404'
+      NOT_FOUND               : '../../../views/errors/404'
    },
    passport : passport,
    utils    : utils
@@ -149,18 +149,17 @@ var args = {
 /* Global function for every controller actions. */
 var initGlobal = function(app) {
    app.all('*', function(req, res, next) {
+      console.log('-- app.all(\'*\') Executed (' + req.protocol + '://' + req.get('host') + req.originalUrl +')! ');
       if (typeof req.user != 'undefined') {
          res.locals.user = req.user;
       }
 
       res.locals.current = {
-         url      : req.protocol + '://' + req.get('host') + req.originalUrl,
+         url   : req.protocol + '://' + req.get('host') + req.originalUrl,
          user  : req.user
       };
 
-      res.locals.helper = {
-
-      };
+      res.locals.helper = utils.ViewHelper;
 
       next();
    });
@@ -168,8 +167,8 @@ var initGlobal = function(app) {
 
 /* Boot up! Set up all controllers. */
 var boot = require('./libs/boot');
-boot(app, args, { verbose: !module.parent, initGlobal: initGlobal });
 initGlobal(app);
+boot(app, args, { verbose: !module.parent, initGlobal: initGlobal });
 
 /* Initialize socket.io for realtime application. */
 io.on('connection', function(socket) {

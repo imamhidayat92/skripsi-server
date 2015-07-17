@@ -1,6 +1,6 @@
 var controller = function(args) {
    var
-      _     = require('underscore'),
+      _        = require('underscore'),
       async    = require('async'),
       passport = require('passport'),
       mongoose = require('mongoose'),
@@ -23,10 +23,12 @@ var controller = function(args) {
    var actions = {};
 
    actions.index = {
-      path  : '/',
+      path     : '/',
       method   : 'get',
       handler  : function(req, res, next) {
-
+         return res.status(200).render('index', {
+            title : 'Class Location'
+         })
       }
    };
 
@@ -67,7 +69,8 @@ var controller = function(args) {
    /* API Functions */
 
    actions.api_index = {
-      path  : '/',
+      path     : '/',
+      prefix   : 'api',
       method   : 'get',
       handler  : function(req, res, next) {
          ClassLocation.find()

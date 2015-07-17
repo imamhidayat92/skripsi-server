@@ -130,9 +130,43 @@ module.exports = function() {
       return flashMessages;
    };
 
+   var TypeUtility = {};
+
+   TypeUtility.isDefAndNotNull = function(v) {
+      return v != undefined && v != null;
+   };
+
+   TypeUtility.isDef = function(v) {
+      return v != undefined;
+   };
+
+   TypeUtility.isNotNull = function(v) {
+      return v != null;
+   };
+
+   var ViewHelperUtility = {};
+
+   ViewHelperUtility.getFlashMessages = function(req, res, next) {
+      var flashMessages = [];
+      var flashTypes = ['danger', 'info', 'success', 'warning'];
+      for (var i in flashTypes) {
+         var type = flashTypes[i];
+         var message = req.flash(type);
+         if (message.length > 0) {
+            flashMessages.push({
+               type: type,
+               message: message[0]
+            });
+         }
+      }
+
+      return flashMessages;
+   };
+
    return {
+      Type: TypeUtility,
       API: APIUtility,
       Logger: LoggerUtility,
-      getFlashMessages: getFlashMessages
+      ViewHelper: ViewHelperUtility
    };
 };

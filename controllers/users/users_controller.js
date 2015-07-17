@@ -11,15 +11,16 @@ var controller = function(args) {
       Enrollment  = require('../../models/EnrollmentSchema'),
       Major       = require('../../models/MajorSchema'),
       Schedule    = require('../../models/ScheduleSchema'),
-      User     = require('../../models/UserSchema')
+      User        = require('../../models/UserSchema')
       ;
 
    var
-      auth       = args.auth,
+      auth        = args.auth,
       passport    = args.passport,
       pages       = args.pages,
-      utils    = args.utils,
-      API      = utils.API
+      utils       = args.utils,
+      API         = utils.API,
+      ViewHelper  = utils.ViewHelper
       ;
 
    var actions = {};
@@ -28,7 +29,7 @@ var controller = function(args) {
 
    actions.add = [
       {
-         path  : '/add',
+         path     : '/add',
          method   : 'get',
          handler  : function(req, res, next) {
             async.parallel(
@@ -220,7 +221,7 @@ var controller = function(args) {
             else {
                return res.status(200).render('login', {
                   title: 'Login',
-                  flashMessages: utils.getFlashMessages(req, res, next)
+                  flashMessages: ViewHelper.getFlashMessages(req, res, next)
                });
             }
          }
@@ -315,7 +316,7 @@ var controller = function(args) {
          path     : '/',
          prefix   : 'api',
          method   : 'post',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
 
          }
@@ -466,7 +467,7 @@ var controller = function(args) {
          path  : '/:id',
          prefix   : 'api',
          method   : 'put',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             delete req.body._id;
 
@@ -487,7 +488,7 @@ var controller = function(args) {
          path     : '/:id/enrollments',
          prefix   : 'api',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             User.findOne({"_id": ObjectId(req.params.id)})
             .populate('enrollments')
@@ -505,7 +506,7 @@ var controller = function(args) {
          path     : '/:id/enrollments',
          prefix   : 'api',
          method   : 'post',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
 
          }
@@ -517,7 +518,7 @@ var controller = function(args) {
          path     : '/:id/schedules',
          prefix   : 'api',
          method   : 'get',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
             User.findOne({"_id": ObjectId(req.params.id)})
             .populate('schedules')
@@ -546,7 +547,7 @@ var controller = function(args) {
          path     : '/:id/schedules',
          prefix   : 'api',
          method   : 'post',
-         before   : passport.authenticate('bearer', { session: false }),
+         before   : auth.check,
          handler  : function(req, res, next) {
 
          }
@@ -554,6 +555,6 @@ var controller = function(args) {
    ];
 
    return actions;
-}
+};
 
 module.exports = controller;
