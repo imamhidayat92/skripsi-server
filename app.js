@@ -20,7 +20,7 @@ var
    server         = require('http').Server(app),
    io             = require('socket.io')(server),
 
-   // Passport Strategy
+   /* Passport Strategy */
    BearerStrategy = require('passport-http-bearer').Strategy,
    LocalStrategy  = require('passport-local').Strategy,
 
@@ -35,13 +35,13 @@ var
    ;
 
 /* Connecting app to Redis. */
-redis = redis.createClient();
+var redisClient = redis.createClient();
 
-redis.on("error", function (err) {
+redisClient.on("error", function (err) {
    console.log("Redis error: " + err);
 });
 
-redis.on("ready", function (err) {
+redisClient.on("ready", function (err) {
    console.log(config.app.name + " successfully connected to Redis.");
 });
 
@@ -67,7 +67,7 @@ app.use(cookieParser(config.security.cookie_secret))
 app.use(session({
    cookie: { maxAge: config.security.session_timeout },
    secret: config.security.session_secret,
-   store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redis }),
+   store: new RedisStore({ host: config.redis.host, port: config.redis.port, client: redisClient }),
    saveUninitialized: true,
    resave: true
 }));
@@ -92,16 +92,15 @@ passport.use(new LocalStrategy(
       passwordField: 'password'
    },
    function(email, password, done) {
-      console.log('-- ' + email + ', ' + password)
       User.findOne({email: email}, function(err, user) {
          if (err) {
             console.log(err);
-               return done(err);
-            }
+            return done(err);
+         }
          if (!user) {
             console.log('Incorrect email.');
-               return done(null, false, { message: 'Incorrect email.' });
-            }
+            return done(null, false, { message: 'Incorrect email.' });
+         }
          if (!user.validPassword(password)) {
             console.log('Incorrect password.');
             return done(null, false, { message: 'Incorrect password.' });
@@ -134,22 +133,22 @@ app.use(express.static(__dirname + '/public'));
 
 /* Set arguments to be bypassed to every controller. */
 var args = {
-   auth     : auth,
-   config   : config,
-   io       : io,
-   pages    : {
+   auth        : auth,
+   config      : config,
+   io          : io,
+   pages       : {
       FORBIDDEN               : '../../../views/errors/403',
       INTERNAL_SERVER_ERROR   : '../../../views/errors/5xx',
       NOT_FOUND               : '../../../views/errors/404'
    },
-   passport : passport,
-   utils    : utils
+   passport    : passport,
+   redisClient : redisClient,
+   utils       : utils
 };
 
 /* Global function for every controller actions. */
 var initGlobal = function(app) {
    app.all('*', function(req, res, next) {
-      console.log('-- app.all(\'*\') Executed (' + req.protocol + '://' + req.get('host') + req.originalUrl +')! ');
       if (typeof req.user != 'undefined') {
          res.locals.user = req.user;
       }
@@ -172,7 +171,7 @@ boot(app, args, { verbose: !module.parent, initGlobal: initGlobal });
 
 /* Initialize socket.io for realtime application. */
 io.on('connection', function(socket) {
-   console.log('New client connected.');
+
 });
 
 /* Handle internal server error and render a view. */

@@ -22,10 +22,6 @@ var controller = function(args) {
       method   : 'get',
       before   : auth.check,
       handler  : function(req, res, next) {
-         console.log('---');
-         console.log(res.locals);
-         console.log('---');
-
          return res.status(200).render('index', {
             title: 'Daftar User',
             users: []
@@ -151,6 +147,8 @@ var controller = function(args) {
                   }
                   else {
                      // TODO: Update cache.
+
+                     return API.success.json(res, attendance);
                   }
                }
             });

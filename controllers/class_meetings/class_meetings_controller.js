@@ -9,6 +9,7 @@ var controller = function(args) {
    var
       Attendance     = require('../../models/AttendanceSchema'),
       ClassMeeting   = require('../../models/ClassMeetingSchema'),
+      Enrollment     = require('../../models/EnrollmentSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
       User           = require('../../models/UserSchema')
@@ -63,7 +64,9 @@ var controller = function(args) {
             };
 
             if (typeof req.query._all != 'undefined' && req.query._all) {
-
+               if (req.user.role != 'administrator' && req.user.role != 'staff') {
+                  return API.forbidden(res, 'Parameter tidak diizinkan untuk diakses ');
+               }
             }
 
             if (andConditions.length > 0) {
@@ -137,33 +140,44 @@ var controller = function(args) {
                   }
                   else {
                      if (typeof req.body.type == 'undefined') {
-                        
+                        return API.invalid.json(res, 'Tipe kelas harus ditentukan.');
                      }
+                     else {
+                        // TODO: Need to check minimum requirements for class meeting type.
 
-                     var classMeeting = new ClassMeeting();
-
-                     _.each(req.body, function(v, k) {
-                        classMeeting[k] = v;
-                     });
-
-                     // Always set it to not verified.
-                     classMeeting.verified = false;
-
-                     classMeeting.course = ObjectId(req.body.course);
-                     classMeeting.lecturer = ObjectId(req.body.lecturer);
-                     classMeeting.schedule = ObjectId(req.body.schedule);
-
-                     classMeeting.created = new Date();
-                     classMeeting.modified = new Date();
-
-                     classMeeting.save(function(saveError, classMeeting) {
-                        if (saveError) {
-                           return API.error.json(res, saveError);
+                        switch (req.body.type) {
+                           case 'general':
+                           case 'mid-test':
+                           case 'final-test':
+                           default:
+                              break;
                         }
-                        else {
-                           return API.success.json(res, classMeeting);
-                        }
-                     });
+
+                        var classMeeting = new ClassMeeting();
+
+                        _.each(req.body, function(v, k) {
+                           classMeeting[k] = v;
+                        });
+
+                        // Always set it to not verified.
+                        classMeeting.verified = false;
+
+                        classMeeting.course = ObjectId(req.body.course);
+                        classMeeting.lecturer = ObjectId(req.body.lecturer);
+                        classMeeting.schedule = ObjectId(req.body.schedule);
+
+                        classMeeting.created = new Date();
+                        classMeeting.modified = new Date();
+
+                        classMeeting.save(function(saveError, classMeeting) {
+                           if (saveError) {
+                              return API.error.json(res, saveError);
+                           }
+                           else {
+                              return API.success.json(res, classMeeting);
+                           }
+                        });
+                     }
                   }
                }
             });
@@ -179,6 +193,10 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             ClassMeeting.findOne({"_id": ObjectId(req.params.id)})
+            .populate('course')
+            .populate('lecturer')
+            .populate('report')
+            .populate('schedule')
             .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
@@ -247,6 +265,8 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
+            .populate('course')
+            .populate('schedule')
             .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
@@ -270,6 +290,7 @@ var controller = function(args) {
                      User.findOne(conditions)
                      .exec(function(error, user) {
                         if (findError) {
+                           Logger.printError(findError);
                            return API.error.json(res, findError);
                         }
                         else {
@@ -281,34 +302,76 @@ var controller = function(args) {
                                  return API.invalid.json(res, "Tidak dapat menyimpan data selain data mahasiswa.");
                               }
                               else {
-                                 /* Compose attendance data. */
-                                 var attendance = new Attendance();
-
-                                 attendance.class_meeting = classMeeting._id;
-                                 attendance.course = '';
-                                 attendance.schedule = classMeeting.schedule;
-                                 attendance.student = user._id;
-
-                                 attendance.created = new Date();
-                                 attendance.modified = new Date();
-
-                                 attendance.save(function(saveError, attendance) {
-                                    if (saveError) {
-                                       return API.error.json(res, saveError)
+                                 Enrollment.find({ student: user._id, schedule: classMeeting.schedule })
+                                 .exec(function(findError, enrollments) {
+                                    if (findError) {
+                                       return API.error.json(res, findError);
                                     }
                                     else {
-                                       /* Update Cache */
-                                       classMeeting.attendances.push(attendance._id);
-                                       classMeeting.save(function(saveError, classMeeting) {
-                                          if (saveError) {f
-                                             Logger.printError(saveError);
-                                          }
-                                          else {
-                                             Logger.printMessage('New attendance data inserted successfully.');
-                                          }
-                                       });
+                                       if (enrollments.length == 0) {
+                                          return API.invalid.json(res, 'Mahasiswa ini tidak terdaftar di kuliah ini.');
+                                       }
+                                       else {
+                                          var existConditions = {
+                                             class_meeting: classMeeting._id,
+                                             user: user._id
+                                          };
+                                          Attendance.find(existConditions)
+                                          .exec(function(findError, attendances) {
+                                             if (findError) {
+                                                Logger.printError(findError);
+                                                return API.error.json(res, findError);
+                                             }
+                                             else {
+                                                if (attendances.length > 0) {
+                                                   return API.invalid.json(res, 'Data kehadiran pernah ditambahkan sebelumnya.');
+                                                }
+                                                else {
+                                                   /* Compose attendance data. */
+                                                   var attendance = new Attendance();
 
-                                       return API.success.json(res, user);
+                                                   attendance.status = 'present';
+                                                   attendance.remarks = '';
+                                                   attendance.verified = true;
+
+                                                   attendance.class_meeting = classMeeting._id;
+                                                   attendance.course = classMeeting.course._id;
+                                                   attendance.schedule = classMeeting.schedule._id;
+                                                   attendance.student = user._id;
+
+                                                   attendance.created = new Date();
+                                                   attendance.modified = new Date();
+
+                                                   attendance.save(function(saveError, attendance) {
+                                                      if (saveError) {
+                                                         Logger.printError(saveError);
+                                                         return API.error.json(res, saveError)
+                                                      }
+                                                      else {
+                                                         /* Update Cache */
+                                                         classMeeting.attendances.push(attendance._id);
+                                                         classMeeting.save(function(saveError, classMeeting) {
+                                                            if (saveError) {
+                                                               Logger.printError(saveError);
+                                                            }
+                                                            else {
+                                                               Logger.printMessage('New attendance data inserted successfully.');
+                                                            }
+                                                         });
+
+                                                         var returnedObject = attendance.toObject();
+
+                                                         returnedObject.course = classMeeting.course;
+                                                         returnedObject.schedule = classMeeting.schedule;
+                                                         returnedObject.student = user;
+
+                                                         return API.success.json(res, returnedObject);
+                                                      }
+                                                   });
+                                                }
+                                             }
+                                          });
+                                       }
                                     }
                                  });
                               }

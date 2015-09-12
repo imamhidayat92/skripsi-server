@@ -5,43 +5,32 @@ block content
       .row
          .col-md-12
             .page-header
-               h1 Tambah User Baru
-
+               h1 Enrollments
       .row
-         .col-md-4.col-md-offset-4
-            form(method='post', action='/users/add')
-               .form-group
-                  label Nama Lengkap
-                  input.form-control(type='text', name='name')
-               .form-group
-                  label Nama
-                  input.form-control(type='text', name='display_name')
-               .form-group
-                  label Nomor Induk
-                  input.form-control(type='text', name='id_number')
-               .form-group
-                  label Nomor Identifikasi
-                  input.form-control(type='text', name='identifier')
-               .form-group
-                  label Email
-                  input.form-control(type='text', name='email')
-               .form-group
-                  label Alamat
-                  input.form-control(type='text', name='address')
-               .form-group
-                  label Password
-                  input.form-control(type='password', name='password')
-               .form-group
-                  label Program Studi
-                  select.form-control(name='major')
-                     each major in majors
-                        option(value='#{major._id}') #{major.name}
-               .form-group
-                  label Role di Sistem
-                  select.form-control(name='role')
-                     option(value='administrator') Administrator
-                     option(value='staff') Staf
-                     option(value='lecturer') Dosen
-                     option(value='student') Mahasiswa
-
-               input.btn.btn-success.btn-block(type='submit', value='Add New User')
+         .col-md-8
+            .display-picture-container(style='float: left; margin: 0 20px 20px 0;')
+               img(src='/#{user.display_picture}', width=100)
+            h3.no-top-bottom-margin #{user.name}
+            p.no-top-bottom-margin #{user.id_number}
+            p #{user.major.name}
+         .col-md-4
+            a.btn.btn-success.btn-block(href='/users/#{user._id}/enrollments/add') Add New Enrollment
+      .row
+         .col-md-12
+            p &nbsp;
+            table.table.table-hover
+               thead
+                  th Course Name
+                  th Schedule Detail
+                  th Lecturer
+               tbody
+                  each enrollment in enrollments
+                     tr
+                        td
+                           p
+                              strong #{enrollment.course.name}
+                        td
+                           p Every day_code(#{enrollment.schedule.day_code})
+                        td
+                           p
+                              strong #{enrollment.lecturer.display_name}

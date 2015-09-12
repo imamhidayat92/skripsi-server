@@ -42,5 +42,8 @@ block content
                            if (user.role == 'staff')
                               span.label.label-default Staff
                         td
-                           p(align='center')
-                              em - no action available -
+                           if (user.role == 'student')
+                              a.btn.btn-sm.btn-info(href='/users/#{user._id}/enrollments') Enrollments
+                           else
+                              p(align='center')
+                                 em - no action available -

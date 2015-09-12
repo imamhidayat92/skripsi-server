@@ -1,6 +1,6 @@
 var
    mongoose = require('mongoose'),
-   Schema      = mongoose.Schema,
+   Schema   = mongoose.Schema,
    ObjectId = Schema.ObjectId
    ;
 
@@ -13,7 +13,8 @@ var enrollmentSchema = new Schema({
    lecturer       :  {type: ObjectId, ref: 'User'},
    student        :  {type: ObjectId, ref: 'User'},
 
-   created        :  Date
+   created        :  Date,
+   modified       :  Date
 }, {collection: 'enrollments'});
 
 module.exports = mongoose.model('Enrollment', enrollmentSchema);

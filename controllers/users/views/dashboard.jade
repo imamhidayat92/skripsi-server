@@ -9,9 +9,13 @@ block content
       
       .row
          .col-md-4
-            h2 Current Active Class Meetings
+            h2 Schedule Today
 
-            .current-active-class-meetings
+         .col-md-8
+            each schedule in schedules
+               div
+                  h3 #{schedule.course.name}
+                  p #{schedule.lecturer.display_name}
                
 block scripts
    

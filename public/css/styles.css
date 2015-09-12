@@ -15,3 +15,33 @@ div.footer {
 .btn-top-action {
    margin-top: 20px;
 }
+
+/* Misc. */
+
+.no-margin {
+   margin: 0;
+}
+
+.no-left-right-margin {
+   margin-left: 0;
+   margin-right: 0;
+}
+
+.no-top-bottom-margin {
+   margin-top: 0;
+   margin-bottom: 0;
+}
+
+.no-padding {
+   padding: 0;
+}
+
+.no-left-right-padding {
+   padding-left: 0;
+   padding-right: 0;
+}
+
+.no-top-bottom-padding {
+   padding-top: 0;
+   padding-bottom: 0;
+}

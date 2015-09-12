@@ -19,6 +19,16 @@ var scheduleSchema = new Schema({
 
    created     :  Date,
    modified    :  {type: Date, default: new Date()}
-}, {collection: 'schedules'});
+}, {collection: 'schedules', toObject: { getters: true, virtuals: true }});
+
+scheduleSchema.virtual('created_ms')
+.get(function() {
+   return this.created.getTime();
+});
+
+scheduleSchema.virtual('modified_ms')
+.get(function() {
+   return this.modified.getTime();
+});
 
 module.exports = mongoose.model('Schedule', scheduleSchema);

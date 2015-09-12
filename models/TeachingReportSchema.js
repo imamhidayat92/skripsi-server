@@ -13,10 +13,21 @@ var teachingReportSchema = new Schema({
    lecturer      :   {type: ObjectId, ref: 'User'},
 
    /* Cache */
-   attendances   :   [{type: ObjectId, ref: 'Attendance'}]
+   attendances   :   [{type: ObjectId, ref: 'Attendance'}],
 
    created       :   Date,
    modified      :   {type: Date, default: new Date()}
-}, {collection: 'teaching_reports'});
+}, { collection: 'teaching_reports', toObject: { getters: true, virtuals: true } });
+
+teachingReportSchema.virtual('created_ms')
+.get(function() {
+   return this.created.getTime();
+});
+
+teachingReportSchema.virtual('modified_ms')
+.get(function() {
+   return this.modified.getTime();
+});
+
 
 module.exports = mongoose.model('TeachingReport', teachingReportSchema);

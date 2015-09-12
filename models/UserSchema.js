@@ -46,7 +46,7 @@ var userSchema = new Schema({
 
    created           :  {type: Date},
    modified          :  {type: Date}
-}, {collection: 'users'});
+}, {collection: 'users', toObject: { getters: true, virtuals: true }});
 
 userSchema.virtual('password')
 .set(function(password) {
@@ -57,6 +57,22 @@ userSchema.virtual('password')
 })
 .get(function() {
    return this._password
+});
+
+userSchema.virtual('created_ms')
+.get(function() {
+   if (this.created) {
+      return this.created.getTime();
+   }
+   return 0;
+});
+
+userSchema.virtual('modified_ms')
+.get(function() {
+   if (this.modified) {
+      return this.modified.getTime();
+   }
+   return 0;
 });
 
 userSchema.methods = {

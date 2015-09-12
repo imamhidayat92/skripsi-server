@@ -8,10 +8,11 @@ var controller = function(args) {
       ;
 
    var
-      Enrollment  = require('../../models/EnrollmentSchema'),
-      Major       = require('../../models/MajorSchema'),
-      Schedule    = require('../../models/ScheduleSchema'),
-      User        = require('../../models/UserSchema')
+      Enrollment     = require('../../models/EnrollmentSchema'),
+      Major          = require('../../models/MajorSchema'),
+      Schedule       = require('../../models/ScheduleSchema'),
+      TeachingReport = require('../../models/TeachingReportSchema'),
+      User           = require('../../models/UserSchema')
       ;
 
    var
@@ -77,9 +78,20 @@ var controller = function(args) {
       method   : 'get',
       before   : auth.check,
       handler  : function(req, res, next) {
-         return res.render('dashboard', {
-            title: 'Dashboard'
-         });
+         Schedule.find({day_code: new Date().getDay()})
+         .populate('course')
+         .populate('lecturer')
+         .exec(function(findError, schedules) {
+            if (findError) {
+               return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+            }
+            else {
+               return res.render('dashboard', {
+                  title: 'Dashboard',
+                  schedules: schedules
+               });
+            }
+         })
       }
    };
 
@@ -88,7 +100,34 @@ var controller = function(args) {
          path     : '/:id/enrollments',
          method   : 'get',
          handler  : function(req, res, next) {
-
+            async.parallel(
+               [
+                  function(callback) {
+                     User.findOne({'_id': ObjectId(req.params.id)})
+                     .populate('major')
+                     .exec(callback);
+                  },
+                  function(callback) {
+                     Enrollment.find({'student': ObjectId(req.params.id)})
+                     .populate('course')
+                     .populate('schedule')
+                     .populate('lecturer')
+                     .exec(callback);
+                  }
+               ],
+               function(asyncError, results) {
+                  if (asyncError) {
+                     return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+                  }
+                  else {
+                     return res.render('detail_enrollments_index', {
+                        title: 'Enrollments',
+                        enrollments: results[1],
+                        user: results[0]
+                     });
+                  }
+               }
+            );
          }
       },
       {
@@ -163,6 +202,7 @@ var controller = function(args) {
                      enrollment.schedule = schedule._id;
                      enrollment.course = schedule.course;
                      enrollment.student = ObjectId(req.params.id);
+                     enrollment.lecturer = schedule.lecturer;
 
                      enrollment.created = new Date();
 
@@ -212,7 +252,7 @@ var controller = function(args) {
 
     actions.login = [
       {
-         path  : '/login',
+         path     : '/login',
          method   : 'get',
          handler  : function(req, res, next) {
                 if (req.isAuthenticated()) {
@@ -231,6 +271,7 @@ var controller = function(args) {
          method   : 'post',
          handler  : function(req, res, next) {
             passport.authenticate('local', function(err, user, info) {
+               console.log(user);
                if (err) {
                   console.log(err);
                   next(err);
@@ -318,7 +359,15 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
+            var user = new User();
 
+            _.each(req.body, function(v, k) {
+               user[k] = v;
+            });
+
+            user.save(function(saveError, user) {
+
+            });
          }
       }
    ];
@@ -464,7 +513,7 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/:id',
+         path     : '/:id',
          prefix   : 'api',
          method   : 'put',
          before   : auth.check,
@@ -520,27 +569,73 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            User.findOne({"_id": ObjectId(req.params.id)})
-            .populate('schedules')
-            .exec(function(findError, user) {
-               if (findError) {
-                  return res.status(500).json({
-                     success: false,
-                     message: "",
-                     system_error: {
+            var conditions = {
+               'lecturer': ObjectId(req.user._id)
+            };
+
+            for (var k in req.query) {
+               if (k == 'day_code') {
+                  conditions.day_code = req.query.day_code;
+               }
+            }
+
+            if (typeof req.query._useCache != 'undefined' && req.query._useCache) {
+               User.findOne({"_id": ObjectId(req.params.id)})
+               .populate('schedules')
+               .exec(function(findError, user) {
+                  if (findError) {
+                     return res.status(500).json({
+                        success: false,
                         message: "",
-                        error: findError
-                     }
-                  });
+                        system_error: {
+                           message: "",
+                           error: findError
+                        }
+                     });
+                  }
+                  else {
+                     var results = [];
+
+                     res.status(200).json({
+                        success: true,
+                        message: "",
+                        results: user.schedules
+                     });
+                  }
+               });
+            }
+            else {
+               if (typeof req.params._all != 'undefined' && req.params._all) {
+                  conditions = {};
                }
-               else {
-                  res.status(200).json({
-                     success: true,
-                     message: "",
-                     results: user.schedules
-                  });
-               }
-            });
+
+               Schedule.find(conditions)
+               .populate('course')
+               .populate('location')
+               .exec(function(findError, schedules) {
+                  if (findError) {
+                     return API.error.json(res, findError);
+                  }
+                  else {
+                     var populates = [
+                        {path: 'course.major', model: 'Major'}
+                     ];
+
+                     Schedule.populate(schedules, populates, function(populateError, schedules) {
+                        if (populateError) {
+                           return API.error.json(res, populateError);
+                        }
+                        else {
+                           var schedulesObject = [];
+                           schedules.forEach(function(schedule) {
+                              schedulesObject.push(schedule.toObject());
+                           });
+                           return API.success.json(res, schedulesObject);
+                        }
+                     });
+                  }
+               });
+            }
          }
       },
       {
@@ -550,6 +645,38 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
 
+         }
+      }
+   ];
+
+   actions.api_user_teaching_reports = [
+      {
+         path     : '/:id/teaching_reports',
+         prefix   : 'api',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            var conditions = {
+               lecturer: req.user._id
+            }
+
+            TeachingReport.find(conditions)
+            .populate('class_meeting')
+            .populate('course')
+            .populate('lecturer')
+            .exec(function(findError, teachingReports) {
+               if (findError) {
+                  return API.error.json(res, findError);
+               }
+               else {
+                  var results = [];
+                  teachingReports.forEach(function(report) {
+                     results.push(report.toObject());
+                  });
+
+                  return API.success.json(res, results);
+               }
+            });
          }
       }
    ];

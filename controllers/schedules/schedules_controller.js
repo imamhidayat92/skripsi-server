@@ -28,7 +28,7 @@ var controller = function(args) {
    /* Pages */
 
    actions.index = {
-      path  : '/',
+      path     : '/',
       method   : 'get',
       handler  : function(req, res, next) {
          Schedule.find()
@@ -51,7 +51,7 @@ var controller = function(args) {
 
    actions.add = [
       {
-         path  : '/add',
+         path     : '/add',
          method   : 'get',
          handler  : function(req, res, next) {
             async.parallel(
@@ -107,7 +107,7 @@ var controller = function(args) {
    actions.api_index = [
       {
          prefix   : 'api',
-         path  : '/',
+         path     : '/',
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
@@ -137,9 +137,13 @@ var controller = function(args) {
                         return API.error.json(res, populateError);
                      }
                      else {
-                        return API.success.json(res, schedules);
+                        var schedulesObject = [];
+                        schedules.forEach(function(schedule) {
+                           schedulesObject.push(schedule.toObject());
+                        });
+                        return API.success.json(res, schedulesObject);
                      }
-                  })
+                  });
                }
             });
          }
@@ -193,12 +197,12 @@ var controller = function(args) {
             .populate('location')
             .populate('enrollments')
             .populate('meetings')
-            .exec(function(findError, schedules) {
+            .exec(function(findError, schedule) {
                if (findError) {
                   return API.error.json(res, findError);
                }
                else {
-                  return API.success.json(res, schedules);
+                  return API.success.json(res, schedule.toObject());
                }
             });
          }
