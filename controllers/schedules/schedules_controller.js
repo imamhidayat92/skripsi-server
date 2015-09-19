@@ -284,7 +284,7 @@ var controller = function(args) {
                      classMeeting.verified = false;
 
                      classMeeting.course = ObjectId(req.body.course);
-                     classMeeting.lecturer = ObjectId(req.body.lecturer);
+                     classMeeting.lecturer = req.user._id;
                      classMeeting.schedule = ObjectId(req.body.schedule);
 
                      classMeeting.created = new Date();

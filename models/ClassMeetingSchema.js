@@ -10,7 +10,7 @@ var classMeetingSchema = new Schema({
 
    course      :  {type: ObjectId, ref: 'Course'},
    lecturer    :  {type: ObjectId, ref: 'User'},
-   report      :  {type: ObjectId, ref: 'Report'},
+   report      :  {type: ObjectId, ref: 'TeachingReport'},
    schedule    :  {type: ObjectId, ref: 'Schedule'},
 
    /* Cache */
@@ -18,6 +18,16 @@ var classMeetingSchema = new Schema({
 
    created     :  Date,
    modified    :  {type: Date, default: new Date()}
-}, {collection: 'class_meetings'});
+}, {collection: 'class_meetings', toObject: { getters: true, virtuals: true }});
+
+classMeetingSchema.virtual('created_ms')
+.get(function() {
+   return this.created.getTime();
+});
+
+classMeetingSchema.virtual('modified_ms')
+.get(function() {
+   return this.modified.getTime();
+});
 
 module.exports = mongoose.model('ClassMeeting', classMeetingSchema);

@@ -20,10 +20,35 @@ var controller = function(args) {
       config   = require('../../config'),
       utils    = require('../../libs/utils')(),
       API      = utils.API,
-      Logger   = utils.Logger
+      Logger   = utils.Logger,
+      pages    = args.pages
       ;
 
    var actions = {};
+
+   actions.index = {
+      path     : '/',
+      method   : 'get',
+      before   : auth.check,
+      handler  : function(req, res, next) {
+         ClassMeeting.find()
+         .populate('course')
+         .populate('lecturer')
+         .populate('report')
+         .populate('schedule')
+         .exec(function(error, classMeetings) {
+            if (error) {
+               return res.status(500).render(pages.FORBIDDEN);
+            }
+            else {
+               return res.status(200).render('index', {
+                  classMeetings: classMeetings,
+                  title: 'Index of Class Meeting'
+               });
+            }
+         });
+      }
+   };
 
    /* API Actions */
 
@@ -163,7 +188,7 @@ var controller = function(args) {
                         classMeeting.verified = false;
 
                         classMeeting.course = ObjectId(req.body.course);
-                        classMeeting.lecturer = ObjectId(req.body.lecturer);
+                        classMeeting.lecturer = req.user._id;
                         classMeeting.schedule = ObjectId(req.body.schedule);
 
                         classMeeting.created = new Date();
@@ -174,7 +199,7 @@ var controller = function(args) {
                               return API.error.json(res, saveError);
                            }
                            else {
-                              return API.success.json(res, classMeeting);
+                              return API.success.json(res, classMeeting.toObject());
                            }
                         });
                      }
@@ -314,7 +339,7 @@ var controller = function(args) {
                                        else {
                                           var existConditions = {
                                              class_meeting: classMeeting._id,
-                                             user: user._id
+                                             student: user._id
                                           };
                                           Attendance.find(existConditions)
                                           .exec(function(findError, attendances) {
