@@ -11,14 +11,17 @@ var controller = function(args) {
       ClassLocation  = require('../../models/ClassLocationSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
-      User        = require('../../models/UserSchema')
+      User           = require('../../models/UserSchema')
       ;
 
    var
-      auth       = require('../../libs/auth')(),
-      utils    = require('../../libs/utils')(),
-      API      = utils.API
+      auth        = require('../../libs/auth')(),
+      utils       = require('../../libs/utils')(),
+      API         = utils.API
       ;
+
+   var
+      pages       = args.pages;
 
    var actions = {};
 
@@ -26,9 +29,18 @@ var controller = function(args) {
       path     : '/',
       method   : 'get',
       handler  : function(req, res, next) {
-         return res.status(200).render('index', {
-            title : 'Class Location'
-         })
+         ClassLocation.find()
+         .exec(function(findError, classLocations) {
+            if (findError) {
+               return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+            }
+            else {
+               return res.status(200).render('index', {
+                  title : 'Class Locations',
+                  classLocations: classLocations
+               });
+            }
+         });
       }
    };
 

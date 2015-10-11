@@ -15,6 +15,7 @@ var controller = function(args) {
    var
       utils    = args.utils,
       auth     = args.auth,
+      pages    = args.pages,
       API      = utils.API
       ;
 
@@ -168,11 +169,23 @@ var controller = function(args) {
    ];
 
    actions.index = {
-      path  : '',
+      path     : '',
       method   : 'get',
       before   : auth.check,
       handler  : function(req, res, next) {
-
+         Course.find()
+         .populate('major')
+         .exec(function(findError, courses) {
+            if (findError) {
+               return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+            }
+            else {
+               return res.status(200).render('index', {
+                  title: 'Courses',
+                  courses: courses
+               });
+            }
+         });
       }
    };
 

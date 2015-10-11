@@ -39,10 +39,9 @@ block content
                                  | #{schedule.course.major.name}
                               else
                                  span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
-                                 | Umum
+                                 | Public
                         td
                            p #{schedule.lecturer.display_name}
                         td
-                           a.btn.btn-sm.btn-warning(href='#') Suspend
-                           a.btn.btn-sm.btn-info(href='#') Detail
+                           a.btn.btn-sm.btn-info(href='/schedules/#{schedule._id}/enrollments') Enrollments
                            

@@ -496,7 +496,7 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             User.findOne({
-               '_id': ObjectId(req.param.id)
+               '_id': ObjectId(req.params.id)
             })
             .exec(function(findError, user) {
                if (findError) {

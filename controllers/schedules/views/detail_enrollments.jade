@@ -1,0 +1,38 @@
+extends ../../../views/layouts/default
+
+block content
+   .container
+      .row
+         .col-md-12
+            .page-header
+               .row
+                  .col-md-10
+                     h1 Enrollments
+                  .col-md-2
+                     a.btn.btn-block.btn-success.btn-top-action(href='/enrollments/add') Add New Enrollment
+      .row
+         .col-md-12
+            table.table.table-hover
+               thead
+                  th ID
+                  th Student Name
+                  th Major
+                  th Actions
+               tbody
+                  each enrollment in enrollments
+                     tr
+                        td
+                           p #{enrollment.student.id_number}
+                        td
+                           p #{enrollment.student.name}
+                        td
+                           p
+                              if (enrollment.student.major)
+                                 span(style='height: 12px; width: 12px; background-color: #{enrollment.student.major.color}; display: inline-block; margin-right: 10px;')
+                                 | #{enrollment.student.major.name}
+                              else
+                                 span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
+                                 | Umum
+                        td
+                           a.btn.btn-sm.btn-info(href='#') Details
+                           

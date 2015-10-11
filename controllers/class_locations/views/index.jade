@@ -11,4 +11,20 @@ block content
             a.btn.btn-block.btn-success(href='/class_locations/add') Add New Class Locations
       .row
          .col-md-12
+            table.table.table-hover
+               thead
+                  th Name
+                  th Descriptions
+                  th Actions
+               tbody
+                  each classLocation in classLocations
+                     tr
+                        td
+                           p #{classLocation.name}
+                        td
+                           p #{classLocation.description}
+                        td
+                           p
+                              a(href='#').btn.btn-sm.btn-info What?
+                        
             

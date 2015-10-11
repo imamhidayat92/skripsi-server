@@ -3,6 +3,7 @@ console.log('Script executed at ' + (new Date()));
 console.log();
 
 var
+   async          = require('async'),
    express        = require('express'),
    session        = require('express-session'),
    bodyParser     = require('body-parser'),
@@ -31,6 +32,12 @@ var
    /* Server Configuration */
    config         = require('./config'),
 
+   /* Models */
+   Attendance     = require('./models/AttendanceSchema'),
+   ClassMeeting   = require('./models/ClassMeetingSchema'),
+   Enrollment     = require('./models/EnrollmentSchema'),
+   Schedule       = require('./models/ScheduleSchema'),
+   TeachingReport = require('./models/TeachingReportSchema'),
    User           = require('./models/UserSchema')
    ;
 

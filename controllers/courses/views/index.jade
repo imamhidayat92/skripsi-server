@@ -1,0 +1,42 @@
+extends ../../../views/layouts/default
+
+block content
+   .container
+      .row
+         .col-md-12
+            .page-header
+               h1 Courses
+      .row
+         .col-md-12
+            table.table.table-hover
+               thead
+                  th
+                     p Name
+                  th
+                     p Credits
+                  th
+                     p Description
+                  th
+                     p Major
+                  th
+                     p Actions
+               tbody
+                  each course in courses
+                     tr
+                        td
+                           p 
+                              a(href='#') #{course.name}
+                        td
+                           p #{course.credits} #{course.credits > 1 ? 'Points' : 'Point'}
+                        td
+                           p #{course.description}
+                        td
+                           if (course.major)
+                              span(style='height: 12px; width: 12px; background-color: #{course.major.color}; display: inline-block; margin-right: 10px;')
+                              | #{course.major.name}
+                           else
+                              span(style='height: 12px; width: 12px; background-color: #ccc; display: inline-block; margin-right: 10px;')
+                              | Public
+                        td                           
+                           p
+                              em - no action available -

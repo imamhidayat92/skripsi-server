@@ -160,7 +160,6 @@ var controller = function(args) {
                }
                else {
                   if (existingClassMeetings.length > 0) {
-                     /* Assume that the first encountered data is the previously entered data. */
                      return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
                   }
                   else {
@@ -256,6 +255,52 @@ var controller = function(args) {
                   }
                   else {
                      _.each(req.body, function(v, k) {
+                        // This conditions will trigger new Attendance data creation for related class meeting.
+                        if (k == 'verified' && !classMeeting.verified) {
+                           // Update every enrolled user status.
+                           Attendance.find({ class_meeting: ObjectId(req.params.id) })
+                           .exec(function(findError, attendances) {
+                              if (findError) {
+                                 Logger.printError(findError);
+                              }
+                              else {
+                                 var presentStudents = [];
+                                 attendances.forEach(function(attendance) {
+                                    if (attendance.status === 'present') {
+                                       presentStudents.push(attendance.student);
+                                    }
+                                 });
+                                 Enrollment.find({ schedule: classMeeting.schedule })
+                                 .exec(function(findError, enrollments) {
+                                    if (findError) {
+                                       Logger.printError(findError);
+                                    }
+                                    else {
+                                       enrollments.forEach(function(enrollment) {
+                                          if (_.contains(presentStudents, enrollment.student)) {
+                                             var attendance = new Attendance();
+
+                                             attendance.status = 'unknown';
+
+                                             attendance.class_meeting = classMeeting._id;
+                                             attendance.schedule = classMeeting.schedule;
+                                             attendance.student = enrollment.student;
+
+                                             attendance.save(function(saveError, attendance) {
+                                                if (saveError) {
+                                                   Logger.printError(saveError);
+                                                }
+                                                else {
+                                                   // TODO: Should we print any message?
+                                                }
+                                             });
+                                          }
+                                       });
+                                    }
+                                 });
+                              }
+                           });
+                        }
                         classMeeting[k] = v;
                      });
 
@@ -278,6 +323,49 @@ var controller = function(args) {
 
    actions.api_details_attendances = [
       {
+         path     : '/:id/attendances',
+         prefix   : 'api',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
+            .exec(function(findError, classMeeting) {
+               if (findError) {
+                  Logger.printError(findError);
+                  return API.error.json(res, findError);
+               }
+               else {
+                  if (classMeeting == null) {
+                     return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan yang dimaksud.');
+                  }
+                  else {
+                     var conditions = {
+                        class_meeting: ObjectId(req.params.id)
+                     };
+                     Attendance.find(conditions)
+                     .populate('class_meeting')
+                     .populate('schedule')
+                     .populate('student')
+                     .exec(function(findError, attendances) {
+                        if (findError) {
+                           Logger.printError(findError);
+                           return API.error.json(res, findError);
+                        }
+                        else {
+                           var results = [];
+                           attendances.forEach(function(attendance) {
+                              var attendanceObject = attendance.toObject();
+                              results.push(attendanceObject);
+                           });
+                           return API.success.json(res, results);
+                        }
+                     });
+                  }
+               }
+            });
+         }
+      },
+      {
          /* This is the main entry point of the "Record Attendance Data" function. */
          /*
             spec: {
@@ -289,7 +377,7 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
-            ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
+            ClassMeeting.findOne({ '_id': ObjectId(req.params.id) })
             .populate('course')
             .populate('schedule')
             .exec(function(findError, classMeeting) {
@@ -310,7 +398,7 @@ var controller = function(args) {
                         conditions.id_number = req.body.id_number;
                      }
                      else {
-                        // TODO: Should return invalid.
+                        return API.invalid.json(res, "Data untuk identifikasi tidak ditemukan.");
                      }
                      User.findOne(conditions)
                      .exec(function(error, user) {

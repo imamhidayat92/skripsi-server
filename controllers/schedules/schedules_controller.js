@@ -11,6 +11,7 @@ var controller = function(args) {
       ClassLocation  = require('../../models/ClassLocationSchema'),
       ClassMeeting   = require('../../models/ClassMeetingSchema'),
       Course         = require('../../models/CourseSchema'),
+      Enrollment     = require('../../models/EnrollmentSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
       User           = require('../../models/UserSchema')
@@ -30,6 +31,7 @@ var controller = function(args) {
    actions.index = {
       path     : '/',
       method   : 'get',
+      before   : auth.check,
       handler  : function(req, res, next) {
          Schedule.find()
          .populate('course')
@@ -53,6 +55,7 @@ var controller = function(args) {
       {
          path     : '/add',
          method   : 'get',
+         before   : auth.check,
          handler  : function(req, res, next) {
             async.parallel(
                [
@@ -78,8 +81,9 @@ var controller = function(args) {
          }
       },
       {
-         path  : '/add',
+         path     : '/add',
          method   : 'post',
+         before   : auth.check,
          handler  : function(req, res, next) {
             var schedule = new Schedule();
 
@@ -101,6 +105,48 @@ var controller = function(args) {
          }
       }
    ];
+
+   actions.detail_enrollments = [
+      {
+         path     : '/:id/enrollments',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            var conditions = {
+               schedule: ObjectId(req.params.id)
+            };
+            Enrollment.find(conditions)
+            .populate('course')
+            .populate('schedule')
+            .populate('student')
+            .populate('lecturer')
+            .exec(function(findError, enrollments) {
+               if (findError) {
+                  console.log(findError);
+                  res.status(500).render('../../../views/errors/5xx');
+               }
+               else {
+                  var options = [
+                     { path: 'student.major', model: 'Major' }
+                  ];
+                  Enrollment.populate(enrollments, options, function(populateError, enrollments) {
+                     if (populateError) {
+                        console.log(populateError);
+                        res.status(500).render('../../../views/errors/5xx');
+                     }
+                     else {
+                        return res.status(200).render('detail_enrollments', {
+                           title: 'Enrollments',
+                           enrollments: enrollments
+                        });
+                     }
+                  });
+               }
+            });
+         }
+      }
+   ];
+
 
    /* API Actions */
 

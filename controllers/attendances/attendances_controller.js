@@ -42,13 +42,15 @@ var controller = function(args) {
          };
 
          for (var i in req.body) {
-
+            if (req.body.hasOwnProperty(i)) {
+               
+            }
          }
 
          var orConditions = [];
 
          if (orConditions.length > 0) {
-
+            conditions.$or = orConditions;
          }
 
          async.parallel(

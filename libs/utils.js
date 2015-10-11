@@ -1,12 +1,17 @@
 module.exports = function() {
 
-   var   _  = require('underscore')
+   var   _           = require('underscore'),
+         nodemailer  = require('nodemailer')
          ;
 
    /* Standard API Utility */
+
    var APIUtility = {};
    var CommonUtility = {};
    var LoggerUtility = {};
+   var MailerUtility = {};
+   var TypeUtility = {};
+   var ViewHelperUtility = {};
 
    /* API Helper Utility */
 
@@ -157,6 +162,16 @@ module.exports = function() {
       };
    };
 
+   /* Mailer Utility */
+
+   MailerUtility.sendMail = function() {
+
+   };
+
+   MailerUtility.sendMailWithTemplate = function(templateId, data, successCallback) {
+
+   };
+
    /* Misc. */
 
    var getFlashMessages = function(req, res, next) {
@@ -176,7 +191,7 @@ module.exports = function() {
       return flashMessages;
    };
 
-   var TypeUtility = {};
+   /* Type Utility */
 
    TypeUtility.isDefAndNotNull = function(v) {
       return v != undefined && v != null;
@@ -190,7 +205,7 @@ module.exports = function() {
       return v != null;
    };
 
-   var ViewHelperUtility = {};
+   /* View Helper Utility */
 
    ViewHelperUtility.getFlashMessages = function(req, res, next) {
       var flashMessages = [];

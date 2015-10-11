@@ -13,13 +13,9 @@ block content
                   th
                      p Course
                   th
-                     p Lecturer
-                  th
-                     p Start Time
-                  th
                      p Actions
                tbody
-                  each classMeeting in classMeetings
+                  each attendance in attendances
                      tr
                         td
                            p 
@@ -30,4 +26,4 @@ block content
                         td
                            p #{classMeeting.created}
                         td                           
-                           a.btn.btn-sm.btn-info(href='/class_meetings/#{classMeeting._id}/attendances') View Attendances
+                           a.btn.btn-sm.btn-info(href='/class_meetings/#{classMeeting._id}') Detail
