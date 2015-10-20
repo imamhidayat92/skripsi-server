@@ -27,7 +27,8 @@ var userSchema = new Schema({
    // For Students
    attendances       :  [{type: ObjectId, ref : 'Attendance'}],
    enrollments       :  [{type: ObjectId, ref : 'Enrollment'}],
-
+   contact_info      :  [{type: ObjectId, ref : 'ContactInfo'}],
+   
    // For Lecturers
    class_meetings    :  [{type: ObjectId, ref : 'ClassMeeting'}],
    schedules         :  [{type: ObjectId, ref : 'Schedule'}],

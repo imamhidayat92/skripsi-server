@@ -12,6 +12,7 @@ var controller = function(args) {
       Enrollment     = require('../../models/EnrollmentSchema'),
       Major          = require('../../models/MajorSchema'),
       Schedule       = require('../../models/ScheduleSchema'),
+      TeachingReport = require('../../models/TeachingReportSchema'),
       User           = require('../../models/UserSchema')
       ;
 
@@ -209,6 +210,19 @@ var controller = function(args) {
       }
    ];
 
+   actions.api_count = {
+      path     : '/',
+      prefix   : 'api',
+      method   : 'get',
+      before   : auth.check,
+      handler  : function(req, res, next) {
+         var conditions = {};
+         ClassMeeting.count(conditions, function() {
+
+         });
+      }
+   };
+
    actions.api_details = [
       {
          path     : '/:id',
@@ -307,11 +321,12 @@ var controller = function(args) {
                      classMeeting.modified = new Date();
 
                      classMeeting.save(function(saveError, savedClassMeeting) {
+                        var returnedObject = savedClassMeeting.toObject();
                         if (saveError) {
                            return API.error.json(res, saveError);
                         }
                         else {
-                           return API.success.json(res, savedClassMeeting);
+                           return API.success.json(res, returnedObject);
                         }
                      });
                   }
@@ -529,6 +544,8 @@ var controller = function(args) {
                      });
 
                      report.class_meeting = classMeeting._id;
+                     report.course = classMeeting.course;
+                     report.lecturer = classMeeting.lecturer;
 
                      report.created = new Date();
 
@@ -557,7 +574,9 @@ var controller = function(args) {
                               }
                            });
 
-                           return API.success.json(res, report);
+                           var rawReportObject = report.toObject();
+
+                           return API.success.json(res, rawReportObject);
                         }
                      });
                   }

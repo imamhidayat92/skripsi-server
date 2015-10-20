@@ -4,10 +4,9 @@ module.exports = function() {
          nodemailer  = require('nodemailer')
          ;
 
-   /* Standard API Utility */
-
    var APIUtility = {};
    var CommonUtility = {};
+   var HTTPUtility = {};
    var LoggerUtility = {};
    var MailerUtility = {};
    var TypeUtility = {};
@@ -134,6 +133,12 @@ module.exports = function() {
       ];
 
       return days[code];
+   };
+
+   /* HTTP Helper Utility */
+
+   HTTPUtility.convertQueryStringToQuery = function(params) {
+      
    };
 
    /* Logger Helper Utility */
