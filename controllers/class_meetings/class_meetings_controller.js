@@ -39,7 +39,7 @@ var controller = function(args) {
          .populate('schedule')
          .exec(function(error, classMeetings) {
             if (error) {
-               return res.status(500).render(pages.FORBIDDEN);
+               return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
             }
             else {
                return res.status(200).render('index', {
@@ -51,10 +51,52 @@ var controller = function(args) {
       }
    };
 
+   actions.detail_attendances = {
+      path     : '/:id/attendances',
+      method   : 'get',
+      before   : auth.check,
+      handler  : function(req, res, next) {
+         ClassMeeting.findOne({ _id: ObjectId(req.params.id) })
+         .populate('course')
+         .populate('lecturer')
+         .populate('report')
+         .populate('schedule')
+         .exec(function(findError, classMeeting) {
+            if (findError) {
+               return res.status(500).render(pages.FORBIDDEN);
+            }
+            else {
+               if (!classMeeting) {
+                  return res.status(404).render(pages.NOT_FOUND);
+               }
+               else {
+                  Attendance.find({ class_meeting: classMeeting._id })
+                  .populate('class_meeting')
+                  .populate('schedule')
+                  .populate('student')
+                  .exec(function(findError, attendances) {
+                     if (findError) {
+                        return res.status(500).render(pages.FORBIDDEN);
+                     }
+                     else {
+                        return res.status(200).render('detail_attendances', {
+                           attendances: attendances,
+                           classMeeting: classMeeting,
+                           title: 'Class Meeting Detail'
+                        });
+                     }
+                  });
+               }
+            }
+         });
+      }
+   };
+
    /* API Actions */
 
    actions.api_index = [
       {
+
          path     : '/',
          prefix   : 'api',
          method   : 'get',
@@ -245,7 +287,7 @@ var controller = function(args) {
                      return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan kelas.');
                   }
                   else {
-                     return API.success.json(res, classMeeting);
+                     return API.success.json(res, classMeeting.toObject());
                   }
                }
             });
@@ -268,7 +310,10 @@ var controller = function(args) {
                      return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan kelas yang dimaksud.');
                   }
                   else {
+                     console.log(req.body);
+                     console.log(classMeeting);
                      _.each(req.body, function(v, k) {
+                        console.log(v, k);
                         // This conditions will trigger new Attendance data creation for related class meeting.
                         if (k == 'verified' && !classMeeting.verified) {
                            // Update every enrolled user status.
@@ -291,24 +336,27 @@ var controller = function(args) {
                                     }
                                     else {
                                        enrollments.forEach(function(enrollment) {
-                                          if (_.contains(presentStudents, enrollment.student)) {
-                                             var attendance = new Attendance();
+                                          console.log('Checking Enrollment Data', enrollment);
+                                          presentStudents.forEach(function(presentStudentId) {
+                                             if (presentStudentId.toString() !== enrollment.student.toString()) {
+                                                var attendance = new Attendance();
 
-                                             attendance.status = 'unknown';
+                                                attendance.status = 'unknown';
 
-                                             attendance.class_meeting = classMeeting._id;
-                                             attendance.schedule = classMeeting.schedule;
-                                             attendance.student = enrollment.student;
+                                                attendance.class_meeting = classMeeting._id;
+                                                attendance.schedule = classMeeting.schedule;
+                                                attendance.student = enrollment.student;
 
-                                             attendance.save(function(saveError, attendance) {
-                                                if (saveError) {
-                                                   Logger.printError(saveError);
-                                                }
-                                                else {
-                                                   // TODO: Should we print any message?
-                                                }
-                                             });
-                                          }
+                                                attendance.save(function(saveError, attendance) {
+                                                   if (saveError) {
+                                                      Logger.printError(saveError);
+                                                   }
+                                                   else {
+                                                      Logger.printMessage('New attendance data saved.')
+                                                   }
+                                                });
+                                             }
+                                          });
                                        });
                                     }
                                  });
@@ -405,12 +453,15 @@ var controller = function(args) {
                      return API.invalid.json(res, "Tidak dapat menemukan data pertemuan kelas.");
                   }
                   else {
+                     var mode = null;
                      var conditions = {};
                      if (typeof req.body.identifier != 'undefined') {
                         conditions.identifier = req.body.identifier;
+                        mode = 'identifier';
                      }
                      else if (typeof req.body.id_number != 'undefined') {
                         conditions.id_number = req.body.id_number;
+                        mode = 'id_number';
                      }
                      else {
                         return API.invalid.json(res, "Data untuk identifikasi tidak ditemukan.");
@@ -458,6 +509,7 @@ var controller = function(args) {
                                                    /* Compose attendance data. */
                                                    var attendance = new Attendance();
 
+                                                   attendance.mode = mode;
                                                    attendance.status = 'present';
                                                    attendance.remarks = '';
                                                    attendance.verified = true;

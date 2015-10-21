@@ -5,6 +5,7 @@ var
    ;
 
 var attendanceSchema = new Schema({
+   mode           :  {type: String, lowercase: true, enum:['identifier', 'id_number']},
    status         :  {type: String, lowercase: true, enum:['present', 'unknown', 'special_permission']},
    remarks        :  {type: String}, // TODO: Make this mandatory field for update action.
    verified       :  {type: Boolean}, // Special requirements. Ignore for this time.

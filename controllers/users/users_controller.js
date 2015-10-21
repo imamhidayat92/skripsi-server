@@ -227,6 +227,43 @@ var controller = function(args) {
       }
    ];
 
+   actions.detail_schedules = [
+      {
+         path     : '/:id/schedules',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            User.findOne({ _id: ObjectId(req.params.id) })
+            .exec(function(findError, user) {
+               if (findError) {
+                  return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+               }
+               else {
+                  if (!user) {
+                     return res.status(404).render(pages.NOT_FOUND);
+                  }
+                  else {
+                     if (req.user.role != 'lecturer') {
+                        return res.status(400).render(pages.INVALID)
+                     }
+                     else {
+                        Schedule.find({ lecturer: ObjectId(req.params.id) })
+                        .exec(function(findError, schedule) {
+                           if (findError) {
+                              return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+                           }
+                           else {
+
+                           }
+                        });
+                     }
+                  }
+               }
+            });
+         }
+      }
+   ];
+
    actions.index = [
       {
          path     : '/',
@@ -250,7 +287,7 @@ var controller = function(args) {
       }
    ];
 
-    actions.login = [
+   actions.login = [
       {
          path     : '/login',
          method   : 'get',

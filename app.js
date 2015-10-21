@@ -146,7 +146,8 @@ var args = {
    pages       : {
       FORBIDDEN               : '../../../views/errors/403',
       INTERNAL_SERVER_ERROR   : '../../../views/errors/5xx',
-      NOT_FOUND               : '../../../views/errors/404'
+      INVALID                 : '../../../views/errors/400',
+      NOT_FOUND               : '../../../views/errors/404',
    },
    passport    : passport,
    redisClient : redisClient,

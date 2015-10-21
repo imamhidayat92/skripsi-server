@@ -6,12 +6,21 @@ block content
          .col-md-12
             .page-header
                h1 Index of Class Meeting
+                  //- small #{classMeeting.course.name}
       .row
          .col-md-12
             table.table.table-hover
                thead
                   th
-                     p Course
+                     p Name
+                  th
+                     p Identification Mode
+                  th
+                     p Status
+                  th
+                     p Created
+                  th
+                     p Modified
                   th
                      p Actions
                tbody
@@ -19,11 +28,28 @@ block content
                      tr
                         td
                            p 
-                              strong
-                                 a(href='/class_meetings/#{classMeeting._id}') #{classMeeting.course.name}
+                              a(href='/users/#{attendance.student._id}/enrollments') #{attendance.student.name}
                         td
-                           p #{classMeeting.lecturer.name}
+                           if (attendance.mode)
+                              p #{attendance.mode}
+                           else
+                              p
+                                 em - no info -
                         td
-                           p #{classMeeting.created}
+                           p 
+                              if (attendance.status === 'present')
+                                 span.label.label-success #{attendance.status}
+                              if (attendance.status === 'unknown')
+                                 span.label.label-danger #{attendance.status}
+                              if (attendance.status === 'special_permission')
+                                 span.label.label-warning #{attendance.status}
+                        td
+                           p #{attendance.created}
+                        td
+                           if (attendance.modified)
+                              p #{attendance.modified}
+                           else
+                              p 
+                                 em - no info -
                         td                           
                            a.btn.btn-sm.btn-info(href='/class_meetings/#{classMeeting._id}') Detail
