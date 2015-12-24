@@ -51,6 +51,30 @@ var controller = function(args) {
       }
    };
 
+   actions.detail = {
+      path     : '/:id',
+      method   : 'get',
+      before   : auth.check,
+      handler  : function(req, res, next) {
+         ClassMeeting.findOne({ '_id': ObjectId(req.params.id) })
+         .populate('course')
+         .populate('lecturer')
+         .populate('report')
+         .populate('schedule')
+         .exec(function(findError, classMeeting) {
+            if (findError) {
+               return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+            }
+            else {
+               return res.status(200).render('detail', {
+                  classMeeting: classMeeting,
+                  title: 'Class Meeting Detail'
+               });
+            }
+         });
+      }
+   };
+
    actions.detail_attendances = {
       path     : '/:id/attendances',
       method   : 'get',
@@ -184,15 +208,12 @@ var controller = function(args) {
          method   : 'post',
          before   : auth.check,
          handler  : function(req, res, next) {
-            /* We need to check, whether the ClassMeeting data has already been created before. */
-            // The question is, how? -_-
-
             var now = new Date();
 
             var existConditions = {
                'course': ObjectId(req.body.course),
                'schedule': ObjectId(req.body.schedule),
-               'lecturer': req.user._id
+               'lecturer': req.user._id,
             };
 
             ClassMeeting.find(existConditions)
@@ -202,7 +223,11 @@ var controller = function(args) {
                   return API.error.json(res, findError);
                }
                else {
-                  if (existingClassMeetings.length > 0) {
+                  var filteredClassMeetings = existingClassMeetings.filter(function(classMeeting) {
+                     return utils.Common.getWeek(classMeeting.created) == utils.Common.getWeek(new Date());
+                  });
+
+                  if (filteredClassMeetings.length > 0) {
                      return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
                   }
                   else {
@@ -210,8 +235,6 @@ var controller = function(args) {
                         return API.invalid.json(res, 'Tipe kelas harus ditentukan.');
                      }
                      else {
-                        // TODO: Need to check minimum requirements for class meeting type.
-
                         switch (req.body.type) {
                            case 'general':
                            case 'mid-test':
@@ -233,8 +256,8 @@ var controller = function(args) {
                         classMeeting.lecturer = req.user._id;
                         classMeeting.schedule = ObjectId(req.body.schedule);
 
-                        classMeeting.created = new Date();
-                        classMeeting.modified = new Date();
+                        classMeeting.created = now;
+                        classMeeting.modified = now;
 
                         classMeeting.save(function(saveError, classMeeting) {
                            if (saveError) {
@@ -253,7 +276,7 @@ var controller = function(args) {
    ];
 
    actions.api_count = {
-      path     : '/',
+      path     : '/count',
       prefix   : 'api',
       method   : 'get',
       before   : auth.check,
@@ -299,7 +322,7 @@ var controller = function(args) {
          method   : 'put',
          before   : auth.check,
          handler  : function(req, res, next) {
-            ClassMeeting.findOne({"_id": ObjectId(req.params.id)})
+            ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
             .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
@@ -336,16 +359,22 @@ var controller = function(args) {
                                     }
                                     else {
                                        enrollments.forEach(function(enrollment) {
-                                          console.log('Checking Enrollment Data', enrollment);
                                           presentStudents.forEach(function(presentStudentId) {
                                              if (presentStudentId.toString() !== enrollment.student.toString()) {
                                                 var attendance = new Attendance();
 
+                                                attendance.mode = 'system';
                                                 attendance.status = 'unknown';
+                                                attendance.remarks = '';
+                                                attendance.verified = true;
 
                                                 attendance.class_meeting = classMeeting._id;
+                                                attendance.course = classMeeting.course._id;
                                                 attendance.schedule = classMeeting.schedule;
                                                 attendance.student = enrollment.student;
+
+                                                attendance.created = new Date();
+                                                attendance.modified = new Date();
 
                                                 attendance.save(function(saveError, attendance) {
                                                    if (saveError) {

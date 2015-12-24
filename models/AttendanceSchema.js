@@ -5,7 +5,7 @@ var
    ;
 
 var attendanceSchema = new Schema({
-   mode           :  {type: String, lowercase: true, enum:['identifier', 'id_number']},
+   mode           :  {type: String, lowercase: true, enum:['identifier', 'id_number', 'system']},
    status         :  {type: String, lowercase: true, enum:['present', 'unknown', 'special_permission']},
    remarks        :  {type: String}, // TODO: Make this mandatory field for update action.
    verified       :  {type: Boolean}, // Special requirements. Ignore for this time.
@@ -25,7 +25,12 @@ attendanceSchema.virtual('created_ms')
 
 attendanceSchema.virtual('modified_ms')
 .get(function() {
-   return this.modified.getTime();
+   if (this.modified) {
+      return this.modified.getTime();
+   }
+   else {
+      return this.created.getTime();
+   }
 });
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

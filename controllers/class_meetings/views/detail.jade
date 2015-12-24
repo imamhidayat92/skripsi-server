@@ -1,0 +1,40 @@
+extends ../../../views/layouts/default
+
+block content
+   .container
+      .row
+         .col-md-12
+            .page-header
+               h1 Class Meeting Detail
+      .row
+         .col-md-6
+            p.no-bottom-margin Course
+            h3.no-top-margin #{classMeeting.course.name}
+            
+            p.no-bottom-margin Lecturer
+            h3.no-top-margin #{classMeeting.lecturer.name}
+            
+            p.no-bottom-margin Created Time
+            p.no-top-margin
+               strong #{classMeeting.created}
+            
+            p.no-bottom-margin Modified Time
+            p.no-top-margin
+               strong #{classMeeting.modified}
+            
+         .col-md-6
+            p.no-bottom-margin Teaching Report Subject
+            if (classMeeting.report)
+               h3.no-top-margin #{classMeeting.report.subject}
+            else
+               h3.no-top-margin
+                  em - no info available -
+            
+            p.no-bottom-margin Teaching Report Summary
+            if (classMeeting.report)
+               p.no-top-margin 
+                  strong #{classMeeting.report.description}
+            else
+               p.no-top-margin
+                  strong
+                     em - no info available -

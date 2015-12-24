@@ -32,6 +32,14 @@ div.footer {
    margin-bottom: 0;
 }
 
+.no-top-margin {
+   margin-top: 0;
+}
+
+.no-bottom-margin {
+   margin-bottom: 0;
+}
+
 .no-padding {
    padding: 0;
 }
@@ -43,5 +51,13 @@ div.footer {
 
 .no-top-bottom-padding {
    padding-top: 0;
+   padding-bottom: 0;
+}
+
+.no-top-padding {
+   padding-top: 0;
+}
+
+.no-bottom-padding {
    padding-bottom: 0;
 }

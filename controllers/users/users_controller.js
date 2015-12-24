@@ -369,11 +369,21 @@ var controller = function(args) {
                conditions['$or'] = $orConditions;
             }
 
-            User.find(conditions).exec(function(findError, users) {
+            var query = User.find(conditions);
+
+            if (req.body.populates) {
+               req.body.populates.forEach(function(field) {
+                  query.populate(field);
+               });
+            }
+
+            query.populate('major');
+
+            query.exec(function(findError, users) {
                if (findError) {
                   return res.status(500).json({
                      success: false,
-                     message: "",
+                     message: "Gagal.",
                      system_error: {
                         message: "",
                         error: findError
@@ -383,7 +393,7 @@ var controller = function(args) {
                else {
                   return res.status(200).json({
                      success: true,
-                     message: "",
+                     message: "Sukses.",
                      results: users
                   });
                }

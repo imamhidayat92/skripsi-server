@@ -9,41 +9,26 @@ block content
       .row
          .col-md-2.col-md-offset-10
             a.btn.btn-block.btn-success(href='/users/add') Add New User
+            p &nbsp;
       .row
          .col-md-12
-            table.table.table-hover
-               thead
-                  th
-                     p Name
-                  th
-                     p E-mail
-                  th
-                     p Major
-                  th
-                     p Role
-                  th
-                     p Action
-               tbody
-                  each user in users
-                     tr
-                        td
-                           p #{user.name}
-                        td
-                           code #{user.email}
-                        td
-                           span.label(style='background-color: #{user.major.color}') #{user.major.name}
-                        td
-                           if (user.role == 'administrator')
-                              span.label.label-danger Administrator
-                           if (user.role == 'lecturer')
-                              span.label.label-warning Lecturer
-                           if (user.role == 'student')
-                              span.label.label-success Student
-                           if (user.role == 'staff')
-                              span.label.label-default Staff
-                        td
-                           if (user.role == 'student')
-                              a.btn.btn-sm.btn-info(href='/users/#{user._id}/enrollments') Enrollments
-                           else
-                              p(align='center')
-                                 em - no action available -
+            #tableUserList
+
+block scripts
+   // Constants
+   script(src='/js/build/constants.js')
+   
+   // Internal Libraries
+   script(src='/js/build/lib/Utils.js')
+   
+   // Components
+   script(src='/js/build/components/ui/table/Table.js')
+   script(src='/js/build/components/ui/common/LoadingIndicator.js')
+   script(src='/js/build/components/ui/common/RetryActionContainer.js')      
+
+   // Services
+   script(src='/js/build/services/UserService.js')
+
+   // Scripts
+   script(src='/js/build/pages/users/IndexPage.js')
+   script(src='/js/build/pages/users/init_index.js')

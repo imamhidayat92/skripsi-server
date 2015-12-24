@@ -90,6 +90,11 @@ module.exports = function() {
       }
    };
 
+   CommonUtility.getWeek = function(d) {
+      var onejan = new Date(d.getFullYear(), 0, 1);
+      return Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+   }
+
    /* For a given date, get the ISO week number
     *
     * Based on information at:
@@ -138,7 +143,7 @@ module.exports = function() {
    /* HTTP Helper Utility */
 
    HTTPUtility.convertQueryStringToQuery = function(params) {
-      
+
    };
 
    /* Logger Helper Utility */
