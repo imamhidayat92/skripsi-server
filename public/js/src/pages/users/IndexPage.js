@@ -2,7 +2,6 @@ function IndexPage(selectors, options) {
    this._selectors = selectors;
 
    this._containers = {};
-   this._reactElements = {};
 
    this._userService = new UserService();
 
@@ -68,7 +67,10 @@ IndexPage.prototype._initTableUserList = function() {
                (
                   function() {
                      if (user.role == 'student') {
-                        return <a className='btn btn-m btn-info' href={'/users/' + user._id + '/enrollments'}>Enrollments</a>
+                        return <div>
+                           <a className='btn btn-sm btn-info' href={'/users/' + user._id + '/enrollments'}>Enrollments</a>{' '}
+                           <a className='btn btn-sm btn-default' href={'/users/' + user._id + '/attendances'}>Attendances</a>
+                        </div>;
                      }
                      else {
                         return <p><em>- no action available</em></p>
@@ -103,7 +105,7 @@ IndexPage.prototype._renderErrorMessage = function() {
 }
 
 IndexPage.prototype._renderTableUserList = function(columns, rows) {
-   this._reactElements['tableUserList'] = ReactDOM.render(
+   ReactDOM.render(
       <Table columns={columns} rows={rows} />,
       this._containers[this._selectors.TABLE_USER_LIST][0]
    );

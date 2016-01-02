@@ -1,6 +1,15 @@
 extends ../../../views/layouts/default
 
 block content
+   .small-banner.schedules
+      .overlay
+         .container
+            .row
+               .col-md-12
+                  .info
+                     h1 Schedules 
+                        small Student Attendance Information System
+                        
    .container
       .row
          .col-md-12
@@ -44,4 +53,5 @@ block content
                            p #{schedule.lecturer.display_name}
                         td
                            a.btn.btn-sm.btn-info(href='/schedules/#{schedule._id}/enrollments') Enrollments
-                           
+                           | 
+                           a.btn.btn-sm.btn-warning(href='/schedules/#{schedule._id}/edit') Edit

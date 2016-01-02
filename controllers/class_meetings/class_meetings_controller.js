@@ -410,6 +410,44 @@ var controller = function(args) {
                }
             });
          }
+      },
+      {
+         path     : '/:id',
+         prefix   : 'api',
+         method   : 'delete',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            ClassMeeting.findOne({ _id: ObjectId(req.params.id) })
+            .exec(function(findError, classMeeting) {
+               if (findError) {
+                  return API.error.json(res, findError);
+               }
+               else {
+                  if (!classMeeting) {
+                     return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan kelas yang dimaksud.');
+                  }
+                  else {
+                     Attendance.find({ class_meeting: ObjectId(req.params.id) }).remove()
+                     .exec(function(docsRemoveError) {
+                        if (docsRemoveError) {
+                           return API.error.json(res, docsRemoveError);
+                        }
+                        else {
+                           ClassMeeting.findByIdAndRemove(ObjectId(req.params.id))
+                           .exec(function(removeError) {
+                              if (removeError) {
+                                 return API.error.json(res, removeError);
+                              }
+                              else {
+                                 return API.success.json(res, classMeeting);
+                              }
+                           });
+                        }
+                     });
+                  }
+               }
+            });
+         }
       }
    ];
 

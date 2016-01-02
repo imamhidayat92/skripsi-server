@@ -95,10 +95,37 @@ var controller = function(args) {
       }
    };
 
+   actions.detail_attendances = [
+      {
+         path     : '/:id/attendances',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            User.findOne({ _id: ObjectId(req.params.id) })
+            .exec(function(findError, user) {
+               if (findError) {
+                  return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+               }
+               else {
+                  if (!user) {
+                     return res.status(400).render(pages.INVALID);
+                  }
+                  else {
+                     return res.render('detail_attendances_index', {
+                        title: user.name + ' Attendances'
+                     });
+                  }
+               }
+            })
+         }
+      }
+   ];
+
    actions.detail_enrollments = [
       {
          path     : '/:id/enrollments',
          method   : 'get',
+         before   : auth.check,
          handler  : function(req, res, next) {
             async.parallel(
                [
@@ -545,6 +572,7 @@ var controller = function(args) {
             User.findOne({
                '_id': ObjectId(req.params.id)
             })
+            .populate('major')
             .exec(function(findError, user) {
                if (findError) {
                   return API.error.json(res, findError);
@@ -577,6 +605,50 @@ var controller = function(args) {
             }));
          }
       },
+   ];
+
+   actions.api_user_attendances = [
+      {
+         path     : '/:id/attendances',
+         prefix   : 'api',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            var conditions = {};
+
+            var andConditions = [];
+
+            Object.keys(req.query).forEach(function(key) {
+               var obj = {};
+               switch(key) {
+                  case 'mode':
+                  case 'status':
+                  case 'remarks':
+                     obj[key] = req.query[key];
+                     andConditions.push(obj);
+                  case 'verified':
+                     obj[key] = req.query[key] === 'true';
+                     andConditions.push(obj);
+                  default:
+                     break;
+               }
+            });
+
+            if (andConditions.length > 0) {
+               conditions['$and'] = andConditions;
+            }
+
+            conditions['student'] = ObjectId(req.user._id);
+
+            Attendance.find(conditions)
+            .populate('class_meeting')
+            .populate('schedule')
+            .populate('student')
+            .exec(function(findError, attendances) {
+               return API.success.json(res, attendances);
+            });
+         }
+      }
    ];
 
    actions.api_user_enrollments = [

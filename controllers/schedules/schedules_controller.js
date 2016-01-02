@@ -24,6 +24,10 @@ var controller = function(args) {
       Logger   = utils.Logger
       ;
 
+   var
+      pages = args.pages
+      ;
+
    var actions = {};
 
    /* Pages */
@@ -147,6 +151,89 @@ var controller = function(args) {
       }
    ];
 
+   actions.edit = [
+      {
+         path     : '/:id/edit',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            Schedule.findOne({ _id: ObjectId(req.params.id) })
+            .populate('location')
+            .exec(function(findError, schedule) {
+               if (findError) {
+                  return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+               }
+               else {
+                  if (!schedule) {
+                     return res.status(400).render(pages.INVALID);
+                  }
+                  else {
+                     async.parallel(
+                        [
+                           function(callback) {
+                              var conditions = {};
+                              User.find(conditions).exec(callback)
+                           },
+                           function(callback) {
+                              ClassLocation.find(callback);
+                           }
+                        ],
+                        function(asyncError, results) {
+                           if (asyncError) {
+                              return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+                           }
+                           else {
+                              var lecturers = results[0];
+                              var locations = results[1];
+
+                              return res.status(200).render('edit', {
+                                 title: 'Edit Schedule',
+                                 locations: locations,
+                                 schedule: schedule,
+                                 lecturers: lecturers
+                              });
+                           }
+                        }
+                     )
+                  }
+               }
+            });
+         }
+      },
+      {
+         path     : '/:id/edit',
+         method   : 'post',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            Schedule.findOne({ _id: ObjectId(req.params.id) })
+            .exec(function(findError, schedule) {
+               Object.keys(req.body).forEach(function(field) {
+                  switch (field) {
+                     case 'day_code':
+                     case 'start_time':
+                     case 'end_time':
+                        schedule[field] = req.body[field];
+                        break;
+                     case 'location':
+                        schedule[field] = ObjectId(req.body[field]);
+                        break;
+                     default:
+                        break;
+                  }
+               });
+
+               schedule.save(function(saveError, schedule) {
+                  if (saveError) {
+                     return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
+                  }
+                  else {
+                     return res.redirect('/schedules');
+                  }
+               });
+            });
+         }
+      }
+   ];
 
    /* API Actions */
 
@@ -157,39 +244,13 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            var conditions = {
-               'day_code': new Date().getDay(),
-               'lecturer': ObjectId(req.user._id)
-            };
-
-            if (typeof req.params._all != 'undefined' && req.params._all) {
-               conditions = {};
-            }
-
-            Schedule.find(conditions)
-            .populate('course')
-            .populate('location')
+            Schedule.find()
             .exec(function(findError, schedules) {
                if (findError) {
                   return API.error.json(res, findError);
                }
                else {
-                  var populates = [
-                     {path: 'course.major', model: 'Major'}
-                  ];
-
-                  Schedule.populate(schedules, populates, function(populateError, schedules) {
-                     if (populateError) {
-                        return API.error.json(res, populateError);
-                     }
-                     else {
-                        var schedulesObject = [];
-                        schedules.forEach(function(schedule) {
-                           schedulesObject.push(schedule.toObject());
-                        });
-                        return API.success.json(res, schedulesObject);
-                     }
-                  });
+                  return API.success.json(res, schedules);
                }
             });
          }
@@ -225,7 +286,78 @@ var controller = function(args) {
                return API.forbidden.json(res, 'Anda tidak diizinkan untuk mengakses sumber daya ini.');
             }
          }
-      },
+      }
+   ];
+
+   actions.api_index_today = [
+      {
+         prefix   : 'api',
+         path     : '/today',
+         method   : 'get',
+         before   : auth.check,
+         handler  : function(req, res, next) {
+            var conditions = {
+               'day_code': new Date().getDay(),
+               'lecturer': ObjectId(req.user._id)
+            };
+
+            if (typeof req.params._all != 'undefined' && req.params._all) {
+               conditions = {};
+            }
+
+            Schedule.find(conditions)
+            .populate('course')
+            .populate('location')
+            .exec(function(findError, schedules) {
+               if (findError) {
+                  return API.error.json(res, findError);
+               }
+               else {
+                  var populates = [
+                     {path: 'course.major', model: 'Major'}
+                  ];
+
+                  Schedule.populate(schedules, populates, function(populateError, schedules) {
+                     if (populateError) {
+                        return API.error.json(res, populateError);
+                     }
+                     else {
+                        var schedulesFunction = [];
+
+                        schedules.forEach(function(schedule) {
+                           schedulesFunction.push(function(callback) {
+                              ClassMeeting.find({ schedule: ObjectId(schedule._id) })
+                              .exec(callback);
+                           });
+                        });
+
+                        async.parallel(
+                           schedulesFunction,
+                           function(asyncError, results) {
+                              if (asyncError) {
+                                 return API.error.json(res, asyncError);
+                              }
+                              else {
+                                 var scheduleObjects = [], count = 0;
+                                 schedules.forEach(function(schedule) {
+                                    var scheduleWithExtras = schedule.toObject();
+                                    scheduleWithExtras['___extras'] = {
+                                       class_meetings: results[count]
+                                    };
+                                    scheduleObjects.push(scheduleWithExtras);
+                                    count++;
+                                 });
+
+                                 return API.success.json(res, scheduleObjects);
+                              }
+                           }
+                        );
+                     }
+                  });
+               }
+            });
+         }
+      }
    ];
 
    actions.api_detail = [

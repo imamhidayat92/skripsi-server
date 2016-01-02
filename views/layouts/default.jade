@@ -15,21 +15,23 @@ body
    else
       include ../elements/navigation/site
    
-   if (typeof flashMessages != "undefined")
-      .container
-         .col-md-12
-            each flashMessage in flashMessages
-               .alert(class='alert-#{flashMessage.type}')
-                  p #{flashMessage.message}
+   if (typeof flashMessages != "undefined" && flashMessages.length > 0)
+      each flashMessage in flashMessages
+         .alert(class='alert-#{flashMessage.type}')
+            p #{flashMessage.message}
 
    block content
    
    include ../elements/footer
 
+   // Dependencies
    script(src='/components/react/react.min.js')
    script(src='/components/react/react-dom.min.js')
    script(src='/components/jquery/dist/jquery.min.js')
    script(src='/components/underscore/underscore-min.js')
    script(src='/components/bootstrap/dist/js/bootstrap.min.js')
-
+   
+   // Scripts
+   script(src='/js/build/init.js')
+   
    block scripts

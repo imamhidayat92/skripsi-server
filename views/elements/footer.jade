@@ -1,5 +1,19 @@
-.container
-   .row
-      .col-md-12
-         .footer
-            p(align='center') &copy; Universitas Paramadina
+.footer-container
+   .container
+      .row
+         .col-md-12
+            .footer
+               .row
+                  .col-md-4
+                     p &copy; Universitas Paramadina, 1998 - #{new Date().getFullYear()}
+                     p
+                        em This is a prototype, used as a server to implement final thesis implementation. See:
+                           a(href='https://github.com/imamhidayat92/skripsi-server', target='_blank')  main repository
+                  .col-md-4.col-md-offset-4.address
+                     p
+                        img(src='/assets/logo-black.jpg')
+                     p &nbsp;
+                     p
+                        strong Universitas Paramadina
+                     p Jl. Jend. Gatot Subroto, Kav. 97, 
+                     p Mampang Prapatan, Jakarta Selatan, 12790

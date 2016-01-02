@@ -6,6 +6,29 @@ var Table = React.createClass({
    render: function() {
       var columns = this.props.columns;
       var rows = this.props.rows;
+
+      var tableBodyElement;
+      if (rows.length > 0) {
+         tableBodyElement = <tbody>
+            {rows.map(function(cells) {
+               return (
+                  <tr>
+                     {cells.map(function(cell) {
+                        return <td>{cell}</td>
+                     })}
+                  </tr>
+               );
+            })}
+         </tbody>;
+      }
+      else {
+         tableBodyElement = <tbody>
+            <tr>
+               <td colspan={columns.length}><em>- no action available -</em></td>
+            </tr>
+         </tbody>;
+      }
+
       return (
          <table className='table table-hover'>
             <thead>
@@ -15,17 +38,7 @@ var Table = React.createClass({
                   );
                })}
             </thead>
-            <tbody>
-               {rows.map(function(cells) {
-                  return (
-                     <tr>
-                        {cells.map(function(cell) {
-                           return <td>{cell}</td>
-                        })}
-                     </tr>
-                  );
-               })}
-            </tbody>
+            {tableBodyElement}
          </table>
       );
    }

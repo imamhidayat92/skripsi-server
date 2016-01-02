@@ -1,6 +1,15 @@
 extends ../../../views/layouts/default
 
 block content
+   .small-banner.users
+      .overlay
+         .container
+            .row
+               .col-md-12
+                  .info
+                     h1 Users 
+                        small Student Attendance Information System
+   
    .container
       .row
          .col-md-12
@@ -31,4 +40,4 @@ block scripts
 
    // Scripts
    script(src='/js/build/pages/users/IndexPage.js')
-   script(src='/js/build/pages/users/init_index.js')
+   script(src='/js/build/pages/users/pageIndex.js')

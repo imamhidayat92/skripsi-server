@@ -1,0 +1,34 @@
+extends ../../../views/layouts/default
+
+block content
+   .container
+      .row
+         .col-md-12
+            .page-header
+               h1 Index of User Attendances
+      .row
+         .col-md-2.col-md-offset-10
+            a.btn.btn-block.btn-success(href='/users/add') Add New User
+            p &nbsp;
+      .row
+         .col-md-12
+            #tableUserAttendanceList
+
+block scripts
+   // Constants
+   script(src='/js/build/constants.js')
+   
+   // Internal Libraries
+   script(src='/js/build/lib/Utils.js')
+   
+   // Components
+   script(src='/js/build/components/ui/table/Table.js')
+   script(src='/js/build/components/ui/common/LoadingIndicator.js')
+   script(src='/js/build/components/ui/common/RetryActionContainer.js')      
+
+   // Services
+   script(src='/js/build/services/UserService.js')
+
+   // Scripts
+   script(src='/js/build/pages/users/AttendanceIndexPage.js')
+   script(src='/js/build/pages/users/pageAttendanceIndex.js')

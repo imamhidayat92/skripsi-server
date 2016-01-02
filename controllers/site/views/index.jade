@@ -1,6 +1,28 @@
 extends ../../../views/layouts/default
 
 block content
+	.big-banner
+		.overlay
+			.container
+				.row
+					.col-md-12
+						.info
+							h1.title Student Attendance Information System
+							p &nbsp;
+							p(align='center')
+								a.cta(href='/users/login') Login and Manage
+
 	.container
-		.col-md-12
-			h1 Hi!
+		.row.summary
+			.col-md-4
+				p.lead
+					strong Enrollment and Scheduling
+				p Administer student and lecturer schedule and enrollment data.
+			.col-md-4
+				p.lead
+					strong Student Attendance Record
+				p Administer student attendance record live from time to time.
+			.col-md-4
+				p.lead
+					strong Teaching Report Record
+				p Manage and verify lecturer teaching report with detailed data.

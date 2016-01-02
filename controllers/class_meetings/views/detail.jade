@@ -25,10 +25,12 @@ block content
          .col-md-6
             p.no-bottom-margin Teaching Report Subject
             if (classMeeting.report)
-               h3.no-top-margin #{classMeeting.report.subject}
+               p.no-top-margin
+                  strong #{classMeeting.report.subject}
             else
-               h3.no-top-margin
-                  em - no info available -
+               p.no-top-margin
+                  strong
+                     em - no info available -
             
             p.no-bottom-margin Teaching Report Summary
             if (classMeeting.report)

@@ -41,9 +41,9 @@ var controller = function(args) {
             $and: []
          };
 
-         for (var i in req.body) {
-            if (req.body.hasOwnProperty(i)) {
-               
+         for (var i in req.query) {
+            if (req.query.hasOwnProperty(i)) {
+
             }
          }
 

@@ -1,5 +1,11 @@
-var helper = function() {
+var ViewHelper = {};
 
+ViewHelper.Form = {
+   generateSelectField: function(values, options) {
+      
+   }
 };
 
-module.exports = helper;
+module.exports = {
+   ViewHelper: ViewHelper
+};

@@ -1,19 +1,172 @@
 /* Overridden Bootstrap Styles */
 
-.btn, .label, .form-control {
+.alert, .btn, .label, .form-control {
    border-radius: 0;
+}
+
+.alert {
+   margin: 0;
 }
 
 /* Main Styles */
 
-div.footer {
-   margin: 40px 0 0 0;
+.big-banner {
+   width: 100%;
+   height: 400px;
+   background-image: url('../assets/essay.jpg');
+   background-size: cover;
+}
+
+.big-banner .overlay {
+   width: 100%;
+   height: 400px;
+   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.big-banner .info {
+   padding: 70px 0 0;
+}
+
+.big-banner .info a.cta {
+   border: solid 1px #fff;
+   padding: 20px;
+   display: inline-block;
+   color: white;
+   font-size: 1.4em;
+   text-decoration: none;
+}
+
+.big-banner .info h1.title {
+   text-align: center;
+   color: white;
+   font-size: 3.7em;
+   font-weight: bold;
+}
+
+.small-banner {
+   width: 100%;
+   height: 85px;
+}
+
+.small-banner .overlay {
+   width: 100%;
+   height: 85px;
+   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.small-banner .info {
+   color: white;
+}
+
+.small-banner .info small {
+   color: white;
+}
+
+.small-banner.attendances {
+   background-image: url('../assets/attendances.jpg');
+   background-size: cover;
+}
+
+.small-banner.class-meetings {
+   background-image: url('../assets/general.jpg');
+   background-size: cover;
+}
+
+.small-banner.data {
+   background-image: url('../assets/data.jpg');
+   background-size: cover;
+}
+
+.small-banner.enrollments {
+   background-image: url('../assets/enrollments.jpg');
+   background-size: cover;
+}
+
+.small-banner.general {
+   background-image: url('../assets/general.jpg');
+   background-size: cover;
+}
+
+.small-banner.schedules {
+   background-image: url('../assets/schedules.jpg');
+   background-size: cover;
+}
+
+.small-banner.teaching-reports {
+   background-image: url('../assets/teaching_reports.jpg');
+   background-size: cover;
+}
+
+.small-banner.users {
+   background-image: url('../assets/users.jpg');
+   background-size: cover;
+}
+
+.summary {
+   margin: 30px 0 0;
+}
+
+.summary p {
+   text-align: center;
+}
+
+.footer-container {
+   width: 100%;
+   margin: 30px 0 0;
+   padding: 20px;
+   background-color: #000;
+   color: white;
+}
+
+.footer {
    padding: 10px 0 10px 0;
-   border-top: solid 1px #ebebeb;
+}
+
+.footer a {
+   color: yellow;
+}
+
+.footer .address p {
+   margin: 0;
+   padding: 0;
 }
 
 .btn-top-action {
    margin-top: 20px;
+}
+
+.navbar-blue {
+   background-color: #0066AF;
+   border-radius: 0;
+   margin-bottom: 0;
+   border: none;
+}
+
+.navbar-blue a.navbar-brand, .navbar-blue a.navbar-brand:hover {
+   color: white;
+}
+
+.navbar-blue ul.navbar-nav li a {
+   color: white;
+}
+
+.navbar-blue ul.navbar-nav li a:hover {
+   color: white;
+   background-color: #818183;
+}
+
+.navbar-blue ul.navbar-nav li.dropdown ul li a {
+   color: black;
+}
+
+.navbar-blue ul.navbar-nav li.dropdown ul li a:hover {
+   color: black;
+   background-color: #ebebeb;
+}
+
+.navbar-blue ul.navbar-nav li.dropdown ul.dropdown-menu {
+   -webkit-box-shadow: none;
+   box-shadow: none;
 }
 
 /* Misc. */

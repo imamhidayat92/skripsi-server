@@ -4,7 +4,7 @@ var RetryActionContainer = React.createClass({
       caption: React.PropTypes.string,
 
       handleClick: React.PropTypes.func
-   }
+   },
    render: function() {
       return (
          <div>
