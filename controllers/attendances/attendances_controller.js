@@ -10,7 +10,8 @@ var controller = function(args) {
       passport    = args.passport,
       pages       = args.pages,
       utils       = args.utils,
-      API         = utils.API
+      API         = utils.API,
+      APIHelper   = utils.APIHelper
       ;
 
    var actions = {};
@@ -37,42 +38,70 @@ var controller = function(args) {
       path    : '/',
       before  : auth.check,
       handler : function(req, res, next) {
-         var conditions = {
-            $and: []
-         };
+         var conditions = {};
 
-         for (var i in req.query) {
-            if (req.query.hasOwnProperty(i)) {
+         var $orConditions = [];
+         var $andConditions = [];
 
+         Object.keys(req.query).forEach(function(key) {
+            var condition = {};
+            switch (key) {
+               case 'mode':
+               case 'status':
+                  condition[key] = req.query[key];
+                  $andConditions.push(condition);
+                  break;
+               case 'remarks':
+                  condition[key] = new RegExp(req.query[key]);
+                  $andConditions.push(condition);
+                  break;
+               case 'verified':
+                  condition[key] = req.query[key] === 'true';
+                  $andConditions.push(condition);
+                  break;
+               case 'class_meeting':
+               case 'schedule':
+               case 'student':
+                  condition[key] = ObjectId(req.query[key]);
+                  $andConditions.push(condition);
+                  break;
+               case '_since':
+                  condition[key] = {
+                     $lt: req.query[key]
+                  };
+                  $andConditions.push(condition);
+               default:
+                  break;
             }
+         });
+
+         if ($orConditions.length > 0) {
+            conditions['$or'] = $orConditions;
          }
 
-         var orConditions = [];
-
-         if (orConditions.length > 0) {
-            conditions.$or = orConditions;
+         if ($andConditions.length > 0) {
+            conditions['$and'] = $andConditions;
          }
 
-         async.parallel(
-            [
-               function(callback) {
-                  Attendance.count(conditions, callback);
-               },
-               function(callback) {
-                  Attendance.find(conditions)
-                  .exec(callback)
-               }
-            ],
-            function(asyncError, results) {
-               if (asyncError) {
-                  return API.error.json(res, asyncError);
-               }
-               else {
-                  var count = results[0];
-                  var attendances = results[1];
-               }
+         var query = Attendance
+            .find(conditions)
+            .populate('class_meeting', 'schedule', 'student');
+
+         if (req.query['_limit'] && typeof req.query['_limit'] === 'number') {
+            req.limit(req.query['_limit']);
+         }
+
+         query.exec(function(findError, attendances) {
+            if (findError) {
+               return API.error.json(res, findError);
             }
-         );
+            else {
+               return API.success.json(
+                  res, attendances, 'Sukses.', APIHelper.composeContinuousAdditionalData(users, req.query, req.originalUrl)
+               );
+            }
+         });
+
       }
    };
 

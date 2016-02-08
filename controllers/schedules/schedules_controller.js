@@ -116,35 +116,50 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            var conditions = {
-               schedule: ObjectId(req.params.id)
-            };
-            Enrollment.find(conditions)
+            Schedule.findOne({ _id: ObjectId(req.params.id) })
             .populate('course')
-            .populate('schedule')
-            .populate('student')
-            .populate('lecturer')
-            .exec(function(findError, enrollments) {
+            .exec(function(findError, schedule) {
                if (findError) {
-                  console.log(findError);
-                  res.status(500).render('../../../views/errors/5xx');
+
                }
                else {
-                  var options = [
-                     { path: 'student.major', model: 'Major' }
-                  ];
-                  Enrollment.populate(enrollments, options, function(populateError, enrollments) {
-                     if (populateError) {
-                        console.log(populateError);
-                        res.status(500).render('../../../views/errors/5xx');
-                     }
-                     else {
-                        return res.status(200).render('detail_enrollments', {
-                           title: 'Enrollments',
-                           enrollments: enrollments
-                        });
-                     }
-                  });
+                  if (!schedule) {
+
+                  }
+                  else {
+                     var conditions = {
+                        schedule: ObjectId(req.params.id)
+                     };
+
+                     Enrollment.find(conditions)
+                     .populate('course')
+                     .populate('schedule')
+                     .populate('student')
+                     .populate('lecturer')
+                     .exec(function(findError, enrollments) {
+                        if (findError) {
+                           console.log(findError);
+                           res.status(500).render('../../../views/errors/5xx');
+                        }
+                        else {
+                           var options = [
+                              { path: 'student.major', model: 'Major' }
+                           ];
+                           Enrollment.populate(enrollments, options, function(populateError, enrollments) {
+                              if (populateError) {
+                                 console.log(populateError);
+                                 res.status(500).render('../../../views/errors/5xx');
+                              }
+                              else {
+                                 return res.status(200).render('detail_enrollments', {
+                                    title: 'Enrollments',
+                                    enrollments: enrollments
+                                 });
+                              }
+                           });
+                        }
+                     });
+                  }
                }
             });
          }

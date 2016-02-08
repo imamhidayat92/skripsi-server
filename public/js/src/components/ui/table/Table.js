@@ -24,7 +24,7 @@ var Table = React.createClass({
       else {
          tableBodyElement = <tbody>
             <tr>
-               <td colspan={columns.length}><em>- no action available -</em></td>
+               <td colspan={columns.length}><em>- no data available -</em></td>
             </tr>
          </tbody>;
       }

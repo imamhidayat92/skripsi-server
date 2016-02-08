@@ -1,15 +1,25 @@
 extends ../../../views/layouts/default
 
 block content
+   .small-banner.enrollments
+      .overlay
+         .container
+            .row
+               .col-md-12
+                  .info
+                     h1 Enrollments 
+                        small Student Attendance Information System
+   
    .container
       .row
          .col-md-12
             .page-header
                .row
                   .col-md-10
-                     h1 Enrollments
+                     h1 Index of Enrollments
                   .col-md-2
                      a.btn.btn-block.btn-success.btn-top-action(href='/enrollments/add') Add New Enrollment
+
       .row
          .col-md-12
             table.table.table-hover

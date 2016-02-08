@@ -25,62 +25,8 @@ IndexPage.prototype._initTableUserList = function() {
 
    var successCallback = function(data) {
       if (data && data.success) {
-         var userRoleLabel = function(user) {
-            var capitalizeFirstLetter = function(str) {
-               var strSplit = str.split('');
-               strSplit[0] = strSplit[0].toUpperCase();
-               return strSplit.join('');
-            };
-            switch(user.role) {
-               case 'administrator':
-                  return <span className='label label-danger'>{capitalizeFirstLetter(user.role)}</span>;
-               case 'lecturer':
-                  return <span className='label label-warning'>{capitalizeFirstLetter(user.role)}</span>;
-               case 'student':
-                  return <span className='label label-success'>{capitalizeFirstLetter(user.role)}</span>
-               case 'staff':
-               default:
-                  return <span className='label label-default'>{capitalizeFirstLetter(user.role)}</span>;
-            }
-         };
-
-         var columns = [
-            'Name', 'E-mail', 'Major', 'Role', 'Action'
-         ];
-         var rows = [];
-         for (var i = 0; i < data.results.length; i++) {
-            var cells = [];
-            var user = data.results[i];
-            cells.push(
-               <p>{user.name}</p>
-            );
-            cells.push(
-               <code>{user.email}</code>
-            );
-            cells.push(
-               <span className='label' style={{ 'background-color': user.major.color }}>{user.major.name}</span>
-            );
-            cells.push(
-               userRoleLabel(user)
-            );
-            cells.push(
-               (
-                  function() {
-                     if (user.role == 'student') {
-                        return <div>
-                           <a className='btn btn-sm btn-info' href={'/users/' + user._id + '/enrollments'}>Enrollments</a>{' '}
-                           <a className='btn btn-sm btn-default' href={'/users/' + user._id + '/attendances'}>Attendances</a>
-                        </div>;
-                     }
-                     else {
-                        return <p><em>- no action available</em></p>
-                     }
-                  }
-               )()
-            );
-
-            rows.push(cells);
-         }
+         var columns = UserRowUtility.getDefaultColumnNames();
+         var rows = UserRowUtility.createElementsFromData(data.results);
          this._renderTableUserList(columns, rows);
       }
    }.bind(this);
@@ -106,7 +52,7 @@ IndexPage.prototype._renderErrorMessage = function() {
 
 IndexPage.prototype._renderTableUserList = function(columns, rows) {
    ReactDOM.render(
-      <Table columns={columns} rows={rows} />,
+      <TableWithCustomRow columns={columns} rows={rows} />,
       this._containers[this._selectors.TABLE_USER_LIST][0]
    );
 };

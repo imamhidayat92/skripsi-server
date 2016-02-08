@@ -5,6 +5,7 @@ module.exports = function() {
          ;
 
    var APIUtility = {};
+   var APIHelper = {};
    var CommonUtility = {};
    var HTTPUtility = {};
    var LoggerUtility = {};
@@ -12,7 +13,7 @@ module.exports = function() {
    var TypeUtility = {};
    var ViewHelperUtility = {};
 
-   /* API Helper Utility */
+   /* API Utility */
 
    APIUtility.error = {
       json: function(res, errorObject, message, errorInfo) {
@@ -89,6 +90,29 @@ module.exports = function() {
          }
       }
    };
+
+   /* API Helper */
+
+   APIHelper.composeContinuousAdditionalData = function(results, params, baseUrl) {
+      var convertObjectToQueryString = function(obj) {
+         var results = [];
+         Object.keys(obj).forEach(function(key) {
+            results.push(key + '=' + obj[key]);
+         });
+         return results.join('&');
+      };
+
+      params = params || {};
+
+      params['since'] = results[results.length - 1].created;
+
+      var additionalData = {};
+      additionalData.next = baseUrl + '?' + convertObjectToQueryString(params);
+
+      return additionalData;
+   };
+
+   /* Misc. */
 
    CommonUtility.getWeek = function(d) {
       var onejan = new Date(d.getFullYear(), 0, 1);
@@ -236,6 +260,7 @@ module.exports = function() {
 
    return {
       API: APIUtility,
+      APIHelper: APIHelper,
       Common: CommonUtility,
       Logger: LoggerUtility,
       Type: TypeUtility,

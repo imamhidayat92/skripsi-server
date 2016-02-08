@@ -21,6 +21,7 @@ var controller = function(args) {
       pages       = args.pages,
       utils       = args.utils,
       API         = utils.API,
+      APIHelper   = utils.APIHelper,
       ViewHelper  = utils.ViewHelper
       ;
 
@@ -59,10 +60,10 @@ var controller = function(args) {
             });
 
             user.provider = 'local';
+            user.created = new Date();
 
             user.save(function(saveError, savedUser) {
                if (saveError) {
-                  console.log(saveError);
                   return res.status(500).render(pages.INTERNAL_SERVER_ERROR);
                }
                else {
@@ -382,47 +383,63 @@ var controller = function(args) {
          method   : 'get',
          before   : auth.check,
          handler  : function(req, res, next) {
-            var findParams = req.body;
+            var findParams = req.query;
 
             var conditions = {};
             var $andConditions = [];
             var $orConditions = [];
 
-            if ($andConditions.length > 0) {
-               conditions['$and'] = $andConditions;
-            }
+            Object.keys(findParams).forEach(function(field) {
+               switch (field) {
+                  case 'address':
+                  case 'display_name':
+                  case 'email':
+                  case 'name':
+                     var condition = {};
+                     condition[field] = new RegExp('/' + findParams[field] + '/g');
+                     $andConditions.push(condition);
+                     break;
+                  case 'major':
+                     $andConditions.push({
+                        'major': ObjectId(findParams[field])
+                     });
+                     break;
+                  default:
+                     break;
+               }
+            });
 
             if ($orConditions.length > 0) {
                conditions['$or'] = $orConditions;
             }
 
+            if (req.query['_since']) {
+               $andConditions.push({
+                  created: {
+                     '$lt': new Date(req.query.since)
+                  }
+               });
+            }
+
             var query = User.find(conditions);
 
-            if (req.body.populates) {
-               req.body.populates.forEach(function(field) {
+            query.limit(5);
+            query.populate('major');
+
+            if (req.query.populates) {
+               req.query.populates.forEach(function(field) {
                   query.populate(field);
                });
             }
 
-            query.populate('major');
-
             query.exec(function(findError, users) {
                if (findError) {
-                  return res.status(500).json({
-                     success: false,
-                     message: "Gagal.",
-                     system_error: {
-                        message: "",
-                        error: findError
-                     }
-                  });
+                  return API.error.json(res, findError);
                }
                else {
-                  return res.status(200).json({
-                     success: true,
-                     message: "Sukses.",
-                     results: users
-                  });
+                  return API.success.json(
+                     res, users, 'Sukses.', APIHelper.composeContinuousAdditionalData(users, req.query, req.originalUrl)
+                  );
                }
             });
          }
@@ -439,8 +456,15 @@ var controller = function(args) {
                user[k] = v;
             });
 
-            user.save(function(saveError, user) {
+            user.created = new Date();
 
+            user.save(function(saveError, user) {
+               if (saveError) {
+                  return API.error.json(res, saveError);
+               }
+               else {
+                  return API.success.json(res, user);
+               }
             });
          }
       }
@@ -638,7 +662,7 @@ var controller = function(args) {
                conditions['$and'] = andConditions;
             }
 
-            conditions['student'] = ObjectId(req.user._id);
+            conditions['student'] = ObjectId(req.params.id);
 
             Attendance.find(conditions)
             .populate('class_meeting')
