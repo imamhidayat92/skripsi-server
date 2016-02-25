@@ -120,7 +120,6 @@ var controller = function(args) {
 
    actions.api_index = [
       {
-
          path     : '/',
          prefix   : 'api',
          method   : 'get',
@@ -169,12 +168,29 @@ var controller = function(args) {
                conditions['$or'] = orConditions;
             }
 
-            var query = ClassMeeting.find(conditions);
+            var query = ClassMeeting
+               .find(conditions)
+               .populate('course')
+               .populate('lecturer')
+               .populate('report')
+               .populate('schedule')
+               ;
 
             async.parallel(
                [
                   function(callback) {
-                     query.exec(callback);
+                     query.exec(function(findError, classMeetings) {
+                        if (findError) {
+                           callback(findError, null);
+                        }
+                        else {
+                           var results = [];
+                           classMeetings.forEach(function(classMeeting) {
+                              results.push(classMeeting.toObject());
+                           });
+                           callback(null, results);
+                        }
+                     });
                   },
                   function(callback) {
                      query.count(callback);
@@ -187,7 +203,7 @@ var controller = function(args) {
                   else {
                      var classMeetings = results[0];
                      var classMeetingCount = results[1];
-                     return API.success.json();
+                     return API.success.json(res, classMeetings);
                   }
                }
             );
@@ -216,6 +232,8 @@ var controller = function(args) {
                'lecturer': req.user._id,
             };
 
+            console.log(existConditions);
+
             ClassMeeting.find(existConditions)
             .exec(function(findError, existingClassMeetings) {
                if (findError) {
@@ -223,7 +241,9 @@ var controller = function(args) {
                   return API.error.json(res, findError);
                }
                else {
+                  console.log(existingClassMeetings);
                   var filteredClassMeetings = existingClassMeetings.filter(function(classMeeting) {
+                     console.log(utils.Common.getWeek(classMeeting.created), utils.Common.getWeek(new Date()));
                      return utils.Common.getWeek(classMeeting.created) == utils.Common.getWeek(new Date());
                   });
 

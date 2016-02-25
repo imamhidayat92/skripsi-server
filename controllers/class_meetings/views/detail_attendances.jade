@@ -1,12 +1,21 @@
 extends ../../../views/layouts/default
 
 block content
+   .small-banner.attendances
+      .overlay
+         .container
+            .row
+               .col-md-12
+                  .info
+                     h1 Attendances 
+                        small Student Attendance Information System
+            
    .container
       .row
          .col-md-12
             .page-header
-               h1 Index of Class Meeting
-                  //- small #{classMeeting.course.name}
+               h1 Index of Attendance
+                  small  #{classMeeting.course.name}
       .row
          .col-md-12
             table.table.table-hover

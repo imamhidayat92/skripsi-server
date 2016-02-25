@@ -423,7 +423,7 @@ var controller = function(args) {
 
             var query = User.find(conditions);
 
-            query.limit(5);
+            // query.limit(5);
             query.populate('major');
 
             if (req.query.populates) {

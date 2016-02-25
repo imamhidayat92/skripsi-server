@@ -25,6 +25,8 @@ block content
                   th
                      p Start Time
                   th
+                     p Verified?
+                  th
                      p Actions
                tbody
                   each classMeeting in classMeetings
@@ -37,5 +39,10 @@ block content
                            p #{classMeeting.lecturer.name}
                         td
                            p #{classMeeting.created}
+                        td
+                           if (classMeeting.verified)
+                              span.label.label-success Verified
+                           else
+                              span.label.label-default Not Verified
                         td                           
                            a.btn.btn-sm.btn-info(href='/class_meetings/#{classMeeting._id}/attendances') View Attendances

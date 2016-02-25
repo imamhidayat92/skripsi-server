@@ -1,9 +1,13 @@
 var controller = function(args) {
    var
-      async = require('async');
+      async       = require('async'),
+      mongoose    = require('mongoose'),
+      ObjectId    = mongoose.Types.ObjectId
+      ;
 
    var
-      Attendance  = require('../../models/AttendanceSchema');
+      Attendance  = require('../../models/AttendanceSchema')
+      ;
 
    var
       auth        = args.auth,
