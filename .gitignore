@@ -31,3 +31,6 @@ config_private.js
 
 # Built client side file.
 public/js/build/
+
+# Unnecessary files?
+dump.rdb
