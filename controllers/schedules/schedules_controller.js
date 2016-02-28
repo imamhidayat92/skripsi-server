@@ -342,6 +342,7 @@ var controller = function(args) {
                         schedules.forEach(function(schedule) {
                            schedulesFunction.push(function(callback) {
                               ClassMeeting.find({ schedule: ObjectId(schedule._id) })
+                              .sort({created: -1})
                               .exec(callback);
                            });
                         });
@@ -356,8 +357,12 @@ var controller = function(args) {
                                  var scheduleObjects = [], count = 0;
                                  schedules.forEach(function(schedule) {
                                     var scheduleWithExtras = schedule.toObject();
+                                    var classMeetings = [];
+                                    results[count].forEach(function(classMeeting) {
+                                       classMeetings.push(classMeeting.toObject());
+                                    });
                                     scheduleWithExtras['___extras'] = {
-                                       class_meetings: results[count]
+                                       class_meetings: classMeetings
                                     };
                                     scheduleObjects.push(scheduleWithExtras);
                                     count++;

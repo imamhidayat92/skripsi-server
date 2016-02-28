@@ -249,7 +249,7 @@ var controller = function(args) {
                   });
 
                   if (filteredClassMeetings.length > 0) {
-                     return API.invalid.json(res, 'Data kelas pertemuan telah dibuat sebelumnya.');
+                     return API.invalid.json(res, 'Data kelas pertemuan untuk jadwal ini telah dibuat untuk minggu ini. Cek Kelas yang Sedang Berlangsung.');
                   }
                   else {
                      if (typeof req.body.type == 'undefined') {
