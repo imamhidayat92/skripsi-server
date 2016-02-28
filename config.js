@@ -10,6 +10,19 @@ module.exports = {
          limit: 25
       }
    },
+   mail: {
+      from: 'Universitas Paramadina <imam.hidayat92@gmail.com>',
+      smtp: {
+         service: "Gmail",
+         secureConnection: false,
+         auth: {
+            user: process.env.SKRIPSI_EMAIL,
+            pass: process.env.SKRIPSI_EMAIL_PASSWORD
+         }
+      },
+      sendEmail: false,
+      browserPreview: true
+   },
    mongodb: {
       host: '127.0.0.1',
       port: 27017,

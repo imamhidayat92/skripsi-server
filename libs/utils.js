@@ -1,12 +1,20 @@
 module.exports = function() {
 
-   var   _           = require('underscore'),
-         nodemailer  = require('nodemailer')
-         ;
+   var
+      _           = require('underscore'),
+      jade        = require('jade'),
+      nodemailer  = require('nodemailer'),
+      path        = require('path')
+      ;
+
+   var
+      config       = require('../config')
+      ;
 
    var APIUtility = {};
    var APIHelper = {};
    var CommonUtility = {};
+   var EmailUtility = {};
    var HTTPUtility = {};
    var LoggerUtility = {};
    var MailerUtility = {};
@@ -164,6 +172,38 @@ module.exports = function() {
       return days[code];
    };
 
+   /* Email Utility */
+
+   EmailUtility.sendMail = function(to, subject, templateId, data, callback) {
+      var templateOptions = {
+         doctype: 'html'
+      };
+
+      var templatePath = path.resolve(__dirname, '..', 'views/email') + path.sep;
+      var template = jade.compileFile(templatePath + templateId + '.jade', templateOptions);
+
+      var html = template(data);
+      var transporter = nodemailer.createTransport(config.mail.smtp);
+
+      transporter.sendMail({
+         from: 'Admin Paramadina <imam.hidayat92@gmail.com>',
+         to: to,
+         subject: subject,
+         html: html
+      }, function(err, info){
+         if (typeof callback == 'function') {
+            if (err) {
+               callback(err, null);
+            }
+            else {
+               console.log('An email has been sent to ' + to + '.');
+               console.log(info);
+               callback(null, info);
+            }
+         }
+      });
+   };
+
    /* HTTP Helper Utility */
 
    HTTPUtility.convertQueryStringToQuery = function(params) {
@@ -262,6 +302,7 @@ module.exports = function() {
       API: APIUtility,
       APIHelper: APIHelper,
       Common: CommonUtility,
+      EmailUtility: EmailUtility,
       Logger: LoggerUtility,
       Type: TypeUtility,
       ViewHelper: ViewHelperUtility

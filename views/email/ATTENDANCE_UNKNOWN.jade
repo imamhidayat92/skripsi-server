@@ -1,0 +1,17 @@
+extends ../layouts/default_email
+
+block content
+
+   table.body-wrap(bgcolor='#f6f6f6')
+      tr
+         td.container(bgcolor='#FFFFFF')
+            .content
+               table
+                  tr
+                     td
+                        p Halo #{user.display_name},
+                        p Anda tidak mengikuti pelaksanaan kelas
+                           strong #{classMeeting.course.name}.
+                        p Jika Anda tidak hadir karena izin, harap laporkan segera sebelum batas waktu pemberian izin berakhir.
+                        p Terima kasih.
+                        p Salam.

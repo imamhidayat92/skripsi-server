@@ -17,12 +17,13 @@ var controller = function(args) {
       ;
 
    var
-      auth     = require('../../libs/auth')(),
-      config   = require('../../config'),
-      utils    = require('../../libs/utils')(),
-      API      = utils.API,
-      Logger   = utils.Logger,
-      pages    = args.pages
+      auth           = require('../../libs/auth')(),
+      config         = require('../../config'),
+      utils          = require('../../libs/utils')(),
+      API            = utils.API,
+      EmailUtility   = utils.EmailUtility
+      Logger         = utils.Logger,
+      pages          = args.pages
       ;
 
    var actions = {};
@@ -343,6 +344,10 @@ var controller = function(args) {
          before   : auth.check,
          handler  : function(req, res, next) {
             ClassMeeting.findOne({'_id': ObjectId(req.params.id)})
+            .populate('course')
+            .populate('lecturer')
+            .populate('report')
+            .populate('schedule')
             .exec(function(findError, classMeeting) {
                if (findError) {
                   Logger.printError(findError);
@@ -353,14 +358,12 @@ var controller = function(args) {
                      return API.invalid.json(res, 'Tidak dapat menemukan data pertemuan kelas yang dimaksud.');
                   }
                   else {
-                     console.log(req.body);
-                     console.log(classMeeting);
                      _.each(req.body, function(v, k) {
-                        console.log(v, k);
                         // This conditions will trigger new Attendance data creation for related class meeting.
                         if (k == 'verified' && !classMeeting.verified) {
                            // Update every enrolled user status.
                            Attendance.find({ class_meeting: ObjectId(req.params.id) })
+                           .populate('student')
                            .exec(function(findError, attendances) {
                               if (findError) {
                                  Logger.printError(findError);
@@ -373,39 +376,62 @@ var controller = function(args) {
                                     }
                                  });
                                  Enrollment.find({ schedule: classMeeting.schedule })
+                                 .populate('lecturer')
+                                 .populate('student')
                                  .exec(function(findError, enrollments) {
                                     if (findError) {
                                        Logger.printError(findError);
                                     }
                                     else {
                                        enrollments.forEach(function(enrollment) {
-                                          presentStudents.forEach(function(presentStudentId) {
-                                             if (presentStudentId.toString() !== enrollment.student.toString()) {
-                                                var attendance = new Attendance();
+                                          var enrolledStudent = enrollment.student;
 
-                                                attendance.mode = 'system';
-                                                attendance.status = 'unknown';
-                                                attendance.remarks = '';
-                                                attendance.verified = true;
-
-                                                attendance.class_meeting = classMeeting._id;
-                                                attendance.course = classMeeting.course._id;
-                                                attendance.schedule = classMeeting.schedule;
-                                                attendance.student = enrollment.student;
-
-                                                attendance.created = new Date();
-                                                attendance.modified = new Date();
-
-                                                attendance.save(function(saveError, attendance) {
-                                                   if (saveError) {
-                                                      Logger.printError(saveError);
-                                                   }
-                                                   else {
-                                                      Logger.printMessage('New attendance data saved.')
-                                                   }
-                                                });
+                                          var isPresent = false;
+                                          presentStudents.forEach(function(presentStudent) {
+                                             if (presentStudent._id.toString() === enrolledStudent._id.toString()) {
+                                                isPresent = true;
                                              }
                                           });
+
+                                          if (!isPresent) {
+                                             var attendance = new Attendance();
+
+                                             attendance.mode = 'system';
+                                             attendance.status = 'unknown';
+                                             attendance.remarks = '';
+                                             attendance.verified = true;
+
+                                             attendance.class_meeting = classMeeting._id;
+                                             attendance.course = classMeeting.course._id;
+                                             attendance.schedule = classMeeting.schedule._id;
+                                             attendance.student = enrollment.student._id;
+
+                                             attendance.created = new Date();
+                                             attendance.modified = new Date();
+
+                                             attendance.save(function(saveError, attendance) {
+                                                if (saveError) {
+                                                   Logger.printError(saveError);
+                                                }
+                                                else {
+                                                   var emailData = {
+                                                      user: enrollment.student,
+                                                      classMeeting: classMeeting
+                                                   };
+                                                   EmailUtility.sendMail(
+                                                      enrollment.student.email, 'Notifikasi Ketidakhadiran', 'ATTENDANCE_UNKNOWN', emailData,
+                                                      function(err, info) {
+                                                         if (err) {
+                                                            console.log('ERROR!');
+                                                            console.log(err);
+                                                         }
+                                                      }
+                                                   );
+
+                                                   Logger.printMessage('New attendance data for UNKNOWN Attendance status saved.')
+                                                }
+                                             });
+                                          }
                                        });
                                     }
                                  });
@@ -694,7 +720,7 @@ var controller = function(args) {
                            return API.error.json(res, saveError);
                         }
                         else {
-                           classMeeting.teaching_report = report._id;
+                           classMeeting.report = report._id;
 
                            classMeeting.save(function(saveError, classMeeting) {
                               if (saveError) {
